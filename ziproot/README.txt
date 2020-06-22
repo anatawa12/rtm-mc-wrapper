@@ -9,9 +9,10 @@ rtm-mc-wrapper
 This library is released under MIT License(see LICENSE.txt).
 
 MIT Licenseの日本語要約
-ライセンス全文を(あなたの作成した)複製または重要な部分に記載する限り(それ以外の)いかなる制限なくこのスクリプトを
-複製、編集、統合、公開、再配布、再ライセンス、販売することなどができる。
-このソフトウェアは保証もなく提供され、原作者(私, anatawa12)はいかなる損害の保証はせず、各種責任を追わないものとする。
+
+このソフトウェアを誰でも無償で無制限に扱って良い。ただし、著作権表示および許諾表示(原文, LICENSE.txt)をソフトウェアのすべての複製または重要な部分に記載しなければならない。
+
+また、作者または著作権者は、ソフトウェアに関してなんら責任を負わない。
 
 MIT License全文の日本語訳はこちらを参照してください： https://ja.osdn.net/projects/opensource/wiki/licenses%2FMIT_license
 
