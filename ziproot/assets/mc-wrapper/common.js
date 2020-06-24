@@ -83,12 +83,26 @@ if (__rtm_mc_wrapper__ == null) {
          * include guard
          * インクルード済なら何もせずに戻る。
          * インクルードしていなければ関数を実行する
-         * @param name {string} インクルードの識別子。"<domain>:<name>"のような形を推奨します
+         * 
+         * 推奨される識別子について
+         * 識別子は"<domain>:<name>"のような形で、<domain>部をモデルパックや作者ごとに固有なもの、<name>をその中での識別子
+         * にするのを推奨しています
+         * 
+         * @param [shouldIncluded] {string[]} すでにincludeされてるはずなもの配列
+         * @param name {string} インクルードの識別子。
          * @param func {function(object)} 実行する関数。引数にglobal object(common.jsの呼び出しコンテクスト)を渡します。
          */
-        rmw.includeGuard = function (name, func) {
+        rmw.includeGuard = function (name, shouldIncluded, func) {
             if (__rtm_mc_wrapper__.guards[name])
                 return
+            if (typeof shouldIncluded == "function") {
+                func = shouldIncluded
+                shouldIncluded = []
+            }
+            shouldIncluded.forEach(function (value) {
+                if (!rmw.isIncluded(value))
+                    throw new Error(name + " can't load without loading " + shouldIncluded + ": " + value + "not loaded");
+            })
             __rtm_mc_wrapper__.guards[name] = "included"
             return func(global)
         }
@@ -112,4 +126,6 @@ if (__rtm_mc_wrapper__ == null) {
             isFinite(value) &&
             Math.floor(value) === value;
     };
+
+    rmw.includeGuard("mc-wrapper:common", function () {});
 }
