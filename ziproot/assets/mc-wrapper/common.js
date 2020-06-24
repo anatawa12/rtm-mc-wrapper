@@ -59,7 +59,7 @@ if (__rtm_mc_wrapper__ == null) {
      * @param for1122 {T}
      * @returns {T} for1710かfor1122を{@link rmw.is1710}に応じて返す
      */
-    __rtm_mc_wrapper__.versioned_func = function (for1710, for1122) {
+    __rtm_mc_wrapper__.versioned_value = function (for1710, for1122) {
         if (rmw.is1710) {
             return for1710
         } else {
@@ -67,22 +67,37 @@ if (__rtm_mc_wrapper__ == null) {
         }
     }
 
-    /**
-     * include guard
-     * インクルード済の場合はtrueを返す
-     * @param name インクルードの識別子
-     * @return {boolean}
-     */
-    __rtm_mc_wrapper__.includeGuard = function (name) {
-        if (__rtm_mc_wrapper__[name])
-            return true
-        __rtm_mc_wrapper__[name] = "included"
-        return false
-    }
+    __rtm_mc_wrapper__.guards = {};
+
+    // noinspection ThisExpressionReferencesGlobalObjectJS
+    (function (global) {
+        /**
+         * include guard
+         * インクルード済なら何もせずに戻る。
+         * インクルードしていなければ関数を実行する
+         * @param name {string} インクルードの識別子。"<domain>:<name>"のような形を推奨します
+         * @param func {function(object)} 実行する関数。引数にglobal object(common.jsの呼び出しコンテクスト)を渡します。
+         */
+        rmw.includeGuard = function (name, func) {
+            if (__rtm_mc_wrapper__.guards[name])
+                return
+            __rtm_mc_wrapper__.guards[name] = "included"
+            return func(global)
+        }
+
+        /**
+         * include guard
+         * インクルード済かどうかを返す
+         * @return {boolean} インクルード済かどうか
+         */
+        rmw.isIncluded = function (name) {
+            return !!__rtm_mc_wrapper__.guards[name]
+        }
+    })(this)
 
     /**
      * polyfill
-     * @type {*|(function(number): boolean)}
+     * @type {(function(number): boolean)}
      */
     Number.isInteger = Number.isInteger || function (value) {
         return typeof value === 'number' &&

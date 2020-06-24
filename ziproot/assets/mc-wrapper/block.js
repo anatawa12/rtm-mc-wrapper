@@ -47,7 +47,7 @@ if (__rtm_mc_wrapper__ == null) throw new Error("couldn't load common.js of mc-w
 
     var blockREGISTRY = Block.field_149771_c // Block.REGISTRY
 
-    var getMCBlockByName = __rtm_mc_wrapper__.versioned_func(
+    var getMCBlockByName = __rtm_mc_wrapper__.versioned_value(
         function (name) {
             var location = new ResourceLocation(name)
             if (!blockREGISTRY.func_148741_d(location)) // RegistryNamespaced.containsKey

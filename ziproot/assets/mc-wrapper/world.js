@@ -73,7 +73,7 @@ if (__rtm_mc_wrapper__ == null) throw new Error("couldn't load common.js of mc-w
         this.__real__ = mcWorld
     }
 
-    WWorld.prototype.getBlock = __rtm_mc_wrapper__.versioned_func(
+    WWorld.prototype.getBlock = __rtm_mc_wrapper__.versioned_value(
         /**
          * ブロックを取得する
          * @param x {number} x
@@ -96,7 +96,7 @@ if (__rtm_mc_wrapper__ == null) throw new Error("couldn't load common.js of mc-w
         }
     )
 
-    WWorld.prototype.setBlock = __rtm_mc_wrapper__.versioned_func(
+    WWorld.prototype.setBlock = __rtm_mc_wrapper__.versioned_value(
         /**
          * ブロックを保存する
          * @param x {number} x
