@@ -58,10 +58,9 @@ rmw.includeGuard("mc-wrapper:tile-entity", ["mc-wrapper:common", "mc-wrapper:nbt
         var tileEntityREGISTRY = TileEntity.field_190562_f // TileEntity.REGISTRY
 
         getTileEntityName = function (tile) {
-            var name = tileEntityREGISTRY
+            return tileEntityREGISTRY
                 .func_177774_c(tile.getClass()) //RegistryNamespaced.getNameForObject
                 .toString();
-            return name;
         }
     }
 
