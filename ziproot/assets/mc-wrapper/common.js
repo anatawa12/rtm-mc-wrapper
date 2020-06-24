@@ -40,17 +40,25 @@ if (__rtm_mc_wrapper__ == null) {
      * rtm mc wrapperのcommon API
      * どのファイルをロードしてもこのオブジェクトは常に存在する。
      */
-    var rmw = {}
+
+    // noinspection ThisExpressionReferencesGlobalObjectJS
+    /**
+     * rtm mc wrapperで使用する内部的なオブジェクト
+     * 使わないでください
+     */
+    Object.defineProperty(this, "rmw", {value: {}});
+
+    // noinspection ThisExpressionReferencesGlobalObjectJS
+    /**
+     * rtm mc wrapperで使用する内部的なオブジェクト
+     * 使わないでください
+     */
+    Object.defineProperty(this, "__rtm_mc_wrapper__", {value: {}});
+
     /**
      * 1.7.10かどうか
      */
     rmw.is1710 = Packages.net.minecraftforge.common.ForgeVersion.mcVersion === "1.7.10"
-
-    /**
-     * rtm mc wrapperで使用する内部的なオブジェクト
-     * できる限り使わないでください
-     */
-    var __rtm_mc_wrapper__ = {}
 
     /**
      * @function
