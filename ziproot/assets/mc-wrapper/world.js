@@ -37,7 +37,7 @@
 
 if (__rtm_mc_wrapper__ == null) throw new Error("you have to load(include) common.js of mc-wrapper before include other mc-wrapper scripts");
 
-rmw.includeGuard("mc-wrapper:world", ["mc-wrapper:common"], function (global) {
+rmw.includeGuard("mc-wrapper:world", ["mc-wrapper:common", "mc-wrapper:block"], function (global) {
     //include <mc-wrapper:block.js>
 
     // common import
