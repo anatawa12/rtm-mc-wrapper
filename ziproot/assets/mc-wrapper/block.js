@@ -88,16 +88,6 @@ if (__rtm_mc_wrapper__ == null) throw new Error("couldn't load common.js of mc-w
     ////////////////////////////////
 
     /**
-     * make block
-     * @param block {WBlockParams}
-     * @return {WBlock}
-     */
-    function makeBlock(block) {
-        if (block instanceof WBlock) return block
-        return new WBlock(block);
-    }
-
-    /**
      * @typedef {WBlockParamsWithNameMeta|WBlockParamsWithNameBlock|WBlockParamsWithState} WBlockParams
      */
     /**
