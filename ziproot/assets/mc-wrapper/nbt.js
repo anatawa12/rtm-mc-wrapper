@@ -37,9 +37,7 @@
 
 if (__rtm_mc_wrapper__ == null) throw new Error("you have to load(include) common.js of mc-wrapper before include other mc-wrapper scripts");
 
-(function () {
-    if (__rtm_mc_wrapper__.includeGuard("nbt")) return
-    var global = this
+rmw.includeGuard("mc-wrapper:nbt", ["mc-wrapper:common"], function (global) {
     var NGTLog = Packages.jp.ngt.ngtlib.io.NGTLog
 
     var NBTBase = Packages.net.minecraft.nbt.NBTBase
@@ -594,4 +592,4 @@ if (__rtm_mc_wrapper__ == null) throw new Error("you have to load(include) commo
     global.WNBTList = WNBTList;
     global.WNBTCompound = WNBTCompound;
     global.WNBTIntArray = WNBTIntArray;
-})()
+})

@@ -37,7 +37,7 @@
 
 if (__rtm_mc_wrapper__ == null) throw new Error("you have to load(include) common.js of mc-wrapper before include other mc-wrapper scripts");
 
-(function () {
+rmw.includeGuard("mc-wrapper:block", ["mc-wrapper:common"], function () {
     var global = this
 
     var NGTLog = Packages.jp.ngt.ngtlib.io.NGTLog
@@ -224,4 +224,4 @@ if (__rtm_mc_wrapper__ == null) throw new Error("you have to load(include) commo
     }
 
     global.WBlock = WBlock;
-})()
+})

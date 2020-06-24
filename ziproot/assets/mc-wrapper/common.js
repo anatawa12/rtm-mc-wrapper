@@ -101,7 +101,7 @@ if (__rtm_mc_wrapper__ == null) {
             }
             shouldIncluded.forEach(function (value) {
                 if (!rmw.isIncluded(value))
-                    throw new Error(name + " can't load without loading " + shouldIncluded + ": " + value + "not loaded");
+                    throw new Error(name + " can't load without loading " + shouldIncluded + ": " + value + " not loaded");
             })
             __rtm_mc_wrapper__.guards[name] = "included"
             return func(global)
@@ -127,5 +127,6 @@ if (__rtm_mc_wrapper__ == null) {
             Math.floor(value) === value;
     };
 
+    // mc-wrapper:commonを ロードされた状態にする
     rmw.includeGuard("mc-wrapper:common", function () {});
 }
