@@ -148,7 +148,7 @@ if (__rtm_mc_wrapper__ == null) throw new Error("couldn't load common.js of mc-w
          * metadata
          * @type {number}
          */
-        this.meta = param.meta || 0;
+        this.__meta__ = param.meta || 0;
 
         /**
          * Blockの名前(minecraft:command_block)など
@@ -161,6 +161,12 @@ if (__rtm_mc_wrapper__ == null) throw new Error("couldn't load common.js of mc-w
          * @type {object}
          */
         this.__real__ = getMCBlockByName(name);
+
+        /**
+         * instance of net.minecraft.block.Block
+         * @type {Object|null|undefined}
+         */
+        this.__realState__ = param.state;
     }
 
     var colors = ["white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "gray", "silver",
@@ -171,6 +177,23 @@ if (__rtm_mc_wrapper__ == null) throw new Error("couldn't load common.js of mc-w
      *     |"silver"|"cyan"|"purple"|"blue"|"brown"|"green"|"red"|"black"} MCColor
      * 羊毛などの色付きブロックの色を示す
      */
+
+    /**
+     * metadata
+     * @this WBlock
+     * @type {number}
+     */
+    Object.defineProperty(WBlock.prototype, "meta", {
+        /** @this WBlock */
+        get: function () {
+            return this.__meta__
+        },
+        /** @this WBlock */
+        set: function (v) {
+            this.__meta__ = v
+            this.__realState__ = null;
+        }
+    })
 
     /**
      * 羊毛などの色
@@ -196,6 +219,7 @@ if (__rtm_mc_wrapper__ == null) throw new Error("couldn't load common.js of mc-w
          * @type {object}
          */
         WBlock.prototype.makeBlockState = function () {
+            if (this.__realState__ != null) return this.__realState__;
             return this.__real__.func_176203_a(this.meta); // Block.getStateFromMeta
         }
     }
