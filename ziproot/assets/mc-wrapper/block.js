@@ -190,12 +190,13 @@ if (__rtm_mc_wrapper__ == null) throw new Error("couldn't load common.js of mc-w
 
     if (!is1710) {
         /**
+         * 1.12.2専用。IBlockStateを作成して返す
          * @memberOf WBlock
          * @this WBlock
          * @type {object}
          */
         WBlock.prototype.makeBlockState = function () {
-            this.__real__
+            return this.__real__.func_176203_a(this.meta); // Block.getStateFromMeta
         }
     }
 
