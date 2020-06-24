@@ -123,7 +123,7 @@ if (__rtm_mc_wrapper__ == null) throw new Error("couldn't load common.js of mc-w
         }
 
         if (param.block != null) {
-            if (is1710) {
+            if (rmw.is1710) {
                 param.name = blockREGISTRY.func_148750_c(param.block).toString()// RegistryNamespaced.getNameForObject
             } else {
                 param.name = param.block.getRegistryName().toString() // getRegistryName by forge
@@ -201,7 +201,7 @@ if (__rtm_mc_wrapper__ == null) throw new Error("couldn't load common.js of mc-w
         }
     })
 
-    if (!is1710) {
+    if (!rmw.is1710) {
         /**
          * 1.12.2専用。IBlockStateを作成して返す
          * @memberOf WBlock

@@ -37,9 +37,14 @@
 
 if (__rtm_mc_wrapper__ == null) {
     /**
+     * rtm mc wrapperのcommon API
+     * どのファイルをロードしてもこのオブジェクトは常に存在する。
+     */
+    var rmw = {}
+    /**
      * 1.7.10かどうか
      */
-    var is1710 = Packages.net.minecraftforge.common.ForgeVersion.mcVersion === "1.7.10"
+    rmw.is1710 = Packages.net.minecraftforge.common.ForgeVersion.mcVersion === "1.7.10"
 
     /**
      * rtm mc wrapperで使用する内部的なオブジェクト
@@ -52,10 +57,10 @@ if (__rtm_mc_wrapper__ == null) {
      * @template T
      * @param for1710 {T}
      * @param for1122 {T}
-     * @returns {T} for1710かfor1122を{@link is1710}に応じて返す
+     * @returns {T} for1710かfor1122を{@link rmw.is1710}に応じて返す
      */
     __rtm_mc_wrapper__.versioned_func = function (for1710, for1122) {
-        if (is1710) {
+        if (rmw.is1710) {
             return for1710
         } else {
             return for1122

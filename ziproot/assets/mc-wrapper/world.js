@@ -47,7 +47,7 @@ if (__rtm_mc_wrapper__ == null) throw new Error("couldn't load common.js of mc-w
     var NGTLog = Packages.jp.ngt.ngtlib.io.NGTLog
 
     // versioned import
-    if (is1710) {
+    if (rmw.is1710) {
 
     } else {
         var BlockPos = Packages.net.minecraft.util.math.BlockPos
