@@ -319,7 +319,7 @@ if (__rtm_mc_wrapper__ == null) throw new Error("couldn't load common.js of mc-w
 
     /**
      *
-     * @param param {NBTCompoundConvertible}
+     * @param [param] {NBTCompoundConvertible}
      * @return {WNBTCompound}
      * @extends {NBTBase}
      * @constructor

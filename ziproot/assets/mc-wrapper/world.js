@@ -42,6 +42,7 @@ if (__rtm_mc_wrapper__ == null) throw new Error("couldn't load common.js of mc-w
     var global = this
 
     //include <mc-wrapper:block.js>
+    //include <mc-wrapper:tile-entity.js>
 
     // common import
     var NGTLog = Packages.jp.ngt.ngtlib.io.NGTLog
@@ -61,7 +62,7 @@ if (__rtm_mc_wrapper__ == null) throw new Error("couldn't load common.js of mc-w
      * @returns {WWorld}
      * @constructor
      */
-    function WWorld (mcWorld) {
+    function WWorld(mcWorld) {
         if (!(this instanceof WWorld)) {
             NGTLog.debug("you should use World as constructor")
             return new WWorld(mcWorld)
@@ -118,4 +119,42 @@ if (__rtm_mc_wrapper__ == null) throw new Error("couldn't load common.js of mc-w
         }
     )
 
+    WWorld.prototype.getTileEntity = __rtm_mc_wrapper__.versioned_func(
+        /**
+         * TileEntityの情報を取得する。
+         * 
+         * @param x {number} x
+         * @param y {number} y
+         * @param z {number} z
+         * @this WWorld
+         * @return {WTileEntity}
+         */
+        function (x, y, z) {
+            var tile = this.__real__.func_147438_o(x, y, z) // World.getTileEntity
+            if (tile == null) return null;
+            return new WTileEntity(tile);
+        },
+        function (x, y, z) {
+            var tile = this.__real__.func_175625_s(new BlockPos(x, y, z)) // World.getTileEntity
+            if (tile == null) return null;
+            return new WTileEntity(tile);
+        }
+    )
+
+    WWorld.prototype.setTileEntity = __rtm_mc_wrapper__.versioned_func(
+        /**
+         * TileEntityを保存する
+         * @param x {number} x
+         * @param y {number} y
+         * @param z {number} z
+         * @param tile {WTileEntity}
+         * @this WWorld
+         */
+        function (x, y, z, tile) {
+            this.__real__.func_147455_a(x, y, z, tile.tile) // World.setTileEntity
+        },
+        function (x, y, z, tile) {
+            this.__real__.func_175690_a(new BlockPos(x, y, z), tile.tile) // World.setTileEntity
+        }
+    )
 })()
