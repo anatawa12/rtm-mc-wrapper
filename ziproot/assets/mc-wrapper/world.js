@@ -118,4 +118,5 @@ if (__rtm_mc_wrapper__ == null) throw new Error("couldn't load common.js of mc-w
         }
     )
 
+    global.WWorld = WWorld;
 })()
