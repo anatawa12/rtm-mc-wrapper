@@ -35,19 +35,16 @@
  * SOFTWARE.
  */
 
-//include <mc-wrapper:common.js>
-if (__rtm_mc_wrapper__ == null) throw new Error("couldn't load common.js of mc-wrapper");
+if (__rtm_mc_wrapper__ == null) throw new Error("you have to load(include) common.js of mc-wrapper before include other mc-wrapper scripts");
 
-(function () {
-    var global = this
-
+rmw.includeGuard("mc-wrapper:world", ["mc-wrapper:common", "mc-wrapper:block"], function (global) {
     //include <mc-wrapper:block.js>
 
     // common import
     var NGTLog = Packages.jp.ngt.ngtlib.io.NGTLog
 
     // versioned import
-    if (is1710) {
+    if (rmw.is1710) {
 
     } else {
         var BlockPos = Packages.net.minecraft.util.math.BlockPos
@@ -73,7 +70,7 @@ if (__rtm_mc_wrapper__ == null) throw new Error("couldn't load common.js of mc-w
         this.__real__ = mcWorld
     }
 
-    WWorld.prototype.getBlock = __rtm_mc_wrapper__.versioned_func(
+    WWorld.prototype.getBlock = __rtm_mc_wrapper__.versioned_value(
         /**
          * ブロックを取得する
          * @param x {number} x
@@ -96,7 +93,7 @@ if (__rtm_mc_wrapper__ == null) throw new Error("couldn't load common.js of mc-w
         }
     )
 
-    WWorld.prototype.setBlock = __rtm_mc_wrapper__.versioned_func(
+    WWorld.prototype.setBlock = __rtm_mc_wrapper__.versioned_value(
         /**
          * ブロックを保存する
          * @param x {number} x
@@ -118,4 +115,5 @@ if (__rtm_mc_wrapper__ == null) throw new Error("couldn't load common.js of mc-w
         }
     )
 
-})()
+    global.WWorld = WWorld;
+})

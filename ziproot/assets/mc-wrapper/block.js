@@ -35,10 +35,9 @@
  * SOFTWARE.
  */
 
-//include <mc-wrapper:common.js>
-if (__rtm_mc_wrapper__ == null) throw new Error("couldn't load common.js of mc-wrapper");
+if (__rtm_mc_wrapper__ == null) throw new Error("you have to load(include) common.js of mc-wrapper before include other mc-wrapper scripts");
 
-(function () {
+rmw.includeGuard("mc-wrapper:block", ["mc-wrapper:common"], function () {
     var global = this
 
     var NGTLog = Packages.jp.ngt.ngtlib.io.NGTLog
@@ -47,7 +46,7 @@ if (__rtm_mc_wrapper__ == null) throw new Error("couldn't load common.js of mc-w
 
     var blockREGISTRY = Block.field_149771_c // Block.REGISTRY
 
-    var getMCBlockByName = __rtm_mc_wrapper__.versioned_func(
+    var getMCBlockByName = __rtm_mc_wrapper__.versioned_value(
         function (name) {
             var location = new ResourceLocation(name)
             if (!blockREGISTRY.func_148741_d(location)) // RegistryNamespaced.containsKey
@@ -88,16 +87,6 @@ if (__rtm_mc_wrapper__ == null) throw new Error("couldn't load common.js of mc-w
     ////////////////////////////////
 
     /**
-     * make block
-     * @param block {WBlockParams}
-     * @return {WBlock}
-     */
-    function makeBlock(block) {
-        if (block instanceof WBlock) return block
-        return new WBlock(block);
-    }
-
-    /**
      * @typedef {WBlockParamsWithNameMeta|WBlockParamsWithNameBlock|WBlockParamsWithState} WBlockParams
      */
     /**
@@ -133,7 +122,7 @@ if (__rtm_mc_wrapper__ == null) throw new Error("couldn't load common.js of mc-w
         }
 
         if (param.block != null) {
-            if (is1710) {
+            if (rmw.is1710) {
                 param.name = blockREGISTRY.func_148750_c(param.block).toString()// RegistryNamespaced.getNameForObject
             } else {
                 param.name = param.block.getRegistryName().toString() // getRegistryName by forge
@@ -148,7 +137,7 @@ if (__rtm_mc_wrapper__ == null) throw new Error("couldn't load common.js of mc-w
          * metadata
          * @type {number}
          */
-        this.meta = param.meta || 0;
+        this.__meta__ = param.meta || 0;
 
         /**
          * Blockの名前(minecraft:command_block)など
@@ -161,6 +150,12 @@ if (__rtm_mc_wrapper__ == null) throw new Error("couldn't load common.js of mc-w
          * @type {object}
          */
         this.__real__ = getMCBlockByName(name);
+
+        /**
+         * instance of net.minecraft.block.Block
+         * @type {Object|null|undefined}
+         */
+        this.__realState__ = param.state;
     }
 
     var colors = ["white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "gray", "silver",
@@ -171,6 +166,23 @@ if (__rtm_mc_wrapper__ == null) throw new Error("couldn't load common.js of mc-w
      *     |"silver"|"cyan"|"purple"|"blue"|"brown"|"green"|"red"|"black"} MCColor
      * 羊毛などの色付きブロックの色を示す
      */
+
+    /**
+     * metadata
+     * @this WBlock
+     * @type {number}
+     */
+    Object.defineProperty(WBlock.prototype, "meta", {
+        /** @this WBlock */
+        get: function () {
+            return this.__meta__
+        },
+        /** @this WBlock */
+        set: function (v) {
+            this.__meta__ = v
+            this.__realState__ = null;
+        }
+    })
 
     /**
      * 羊毛などの色
@@ -188,14 +200,16 @@ if (__rtm_mc_wrapper__ == null) throw new Error("couldn't load common.js of mc-w
         }
     })
 
-    if (!is1710) {
+    if (!rmw.is1710) {
         /**
+         * 1.12.2専用。IBlockStateを作成して返す
          * @memberOf WBlock
          * @this WBlock
          * @type {object}
          */
         WBlock.prototype.makeBlockState = function () {
-            this.__real__
+            if (this.__realState__ != null) return this.__realState__;
+            return this.__real__.func_176203_a(this.meta); // Block.getStateFromMeta
         }
     }
 
@@ -210,4 +224,4 @@ if (__rtm_mc_wrapper__ == null) throw new Error("couldn't load common.js of mc-w
     }
 
     global.WBlock = WBlock;
-})()
+})
