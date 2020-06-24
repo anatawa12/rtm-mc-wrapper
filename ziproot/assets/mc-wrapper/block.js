@@ -37,9 +37,7 @@
 
 if (__rtm_mc_wrapper__ == null) throw new Error("you have to load(include) common.js of mc-wrapper before include other mc-wrapper scripts");
 
-rmw.includeGuard("mc-wrapper:block", ["mc-wrapper:common"], function () {
-    var global = this
-
+rmw.includeGuard("mc-wrapper:block", ["mc-wrapper:common"], function (global) {
     var NGTLog = Packages.jp.ngt.ngtlib.io.NGTLog
     var Block = Packages.net.minecraft.block.Block
     var ResourceLocation = Packages.net.minecraft.util.ResourceLocation

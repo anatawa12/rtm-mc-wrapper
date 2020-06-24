@@ -316,7 +316,7 @@ rmw.includeGuard("mc-wrapper:nbt", ["mc-wrapper:common"], function (global) {
 
     /**
      *
-     * @param param {NBTCompoundConvertible}
+     * @param [param] {NBTCompoundConvertible}
      * @return {WNBTCompound}
      * @extends {NBTBase}
      * @constructor
