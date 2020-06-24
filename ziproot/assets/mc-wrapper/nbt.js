@@ -35,8 +35,7 @@
  * SOFTWARE.
  */
 
-//include <mc-wrapper:common.js>
-if (__rtm_mc_wrapper__ == null) throw new Error("couldn't load common.js of mc-wrapper");
+if (__rtm_mc_wrapper__ == null) throw new Error("you have to load(include) common.js of mc-wrapper before include other mc-wrapper scripts");
 
 (function () {
     if (__rtm_mc_wrapper__.includeGuard("nbt")) return
