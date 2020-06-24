@@ -116,4 +116,4 @@ rmw.includeGuard("mc-wrapper:world", ["mc-wrapper:common", "mc-wrapper:block"], 
     )
 
     global.WWorld = WWorld;
-})()
+})
