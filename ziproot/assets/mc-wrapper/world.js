@@ -68,6 +68,14 @@ rmw.includeGuard("mc-wrapper:world", ["mc-wrapper:common", "mc-wrapper:block"], 
         this.__real__ = mcWorld
     }
 
+    /**
+     * ブロックを取得する
+     * @param x {number} x
+     * @param y {number} y
+     * @param z {number} z
+     * @this WWorld
+     * @return {WBlock}
+     */
     WWorld.prototype.getBlock = __rtm_mc_wrapper__.versioned_value(
         /**
          * ブロックを取得する
@@ -85,6 +93,7 @@ rmw.includeGuard("mc-wrapper:world", ["mc-wrapper:common", "mc-wrapper:block"], 
         function (x, y, z) {
             var blockState = this.__real__.func_180495_p(new BlockPos(x, y, z)) // World.getBlockState
             var block = blockState.func_177230_c() // IBlockState.getBlock()
+            // noinspection JSUnresolvedFunction
             var name = block.getRegistryName().toString() // getRegistryName by forge
             var meta = block.func_176201_c(blockState)//Block.getMetaFromState
             return new WBlock({name: name, meta: meta})
@@ -113,7 +122,7 @@ rmw.includeGuard("mc-wrapper:world", ["mc-wrapper:common", "mc-wrapper:block"], 
         }
     )
 
-    WWorld.prototype.getTileEntity = __rtm_mc_wrapper__.versioned_func(
+    WWorld.prototype.getTileEntity = __rtm_mc_wrapper__.versioned_value(
         /**
          * TileEntityの情報を取得する。
          * 
@@ -135,7 +144,7 @@ rmw.includeGuard("mc-wrapper:world", ["mc-wrapper:common", "mc-wrapper:block"], 
         }
     )
 
-    WWorld.prototype.setTileEntity = __rtm_mc_wrapper__.versioned_func(
+    WWorld.prototype.setTileEntity = __rtm_mc_wrapper__.versioned_value(
         /**
          * TileEntityを保存する
          * @param x {number} x
@@ -145,11 +154,24 @@ rmw.includeGuard("mc-wrapper:world", ["mc-wrapper:common", "mc-wrapper:block"], 
          * @this WWorld
          */
         function (x, y, z, tile) {
-            this.__real__.func_147455_a(x, y, z, tile.tile) // World.setTileEntity
+            this.__real__.func_147455_a(x, y, z, tile.tile)
         },
         function (x, y, z, tile) {
             this.__real__.func_175690_a(new BlockPos(x, y, z), tile.tile) // World.setTileEntity
         }
     )
+
+    var worldMap = new Packages.java.util.WeakHashMap();
+    var makeWorld = function (key) { return new WWorld(key) };
+
+    /**
+     * @param world
+     * @return {null|WWorld}
+     */
+    WWorld.wrap = function(world) {
+        if (world == null) return null;
+        return worldMap.computeIfAbsent(world, makeWorld)
+    }
+
     global.WWorld = WWorld;
 })

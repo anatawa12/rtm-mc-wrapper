@@ -43,30 +43,40 @@ rmw.includeGuard("mc-wrapper:tile-entity", ["mc-wrapper:common", "mc-wrapper:nbt
     var TileEntity = Packages.net.minecraft.tileentity.TileEntity
 
     /**
-     * @type {function(TileEntity):string}
+     * @type {function(i_net_minecraft_tileentity_TileEntity):string}
      */
     var getTileEntityName;
 
-    if (is1710) {
+    if (rmw.is1710) {
+        // noinspection JSUnresolvedVariable
         var ReflectionHelper = Packages.cpw.mods.fml.relauncher.ReflectionHelper;
+        // noinspection JSUnresolvedVariable,JSUnresolvedFunction
         var classToNameMap = ReflectionHelper.findField(TileEntity.class, "field_145853_j");
 
+        /**
+         * @param tile {i_net_minecraft_tileentity_TileEntity}
+         * @return {string}
+         */
         getTileEntityName = function (tile) {
+            // noinspection JSUnresolvedFunction
             return classToNameMap.get(null, tile.getClass())
         }
-    } else {
-        var tileEntityREGISTRY = TileEntity.field_190562_f // TileEntity.REGISTRY
 
+    } else {
+        /**
+         * @param tile {i_net_minecraft_tileentity_TileEntity}
+         * @return {string}
+         */
         getTileEntityName = function (tile) {
-            return tileEntityREGISTRY
-                .func_177774_c(tile.getClass()) //RegistryNamespaced.getNameForObject
+            // noinspection JSUnresolvedFunction
+            return TileEntity.func_190559_a(tile.getClass()) //RegistryNamespaced.getNameForObject
                 .toString();
         }
     }
 
-    var getWNBTCompoundByTile = __rtm_mc_wrapper__.versioned_func(
+    var getWNBTCompoundByTile = __rtm_mc_wrapper__.versioned_value(
         /**
-         * @param tile {TileEntity} tile
+         * @param tile {b_net_minecraft_tileentity_TileEntity} tile
          * @return {WNBTCompound}
          */
         function (tile) {
@@ -81,16 +91,16 @@ rmw.includeGuard("mc-wrapper:tile-entity", ["mc-wrapper:common", "mc-wrapper:nbt
         }
     )
 
-    var makeTileEntity = __rtm_mc_wrapper__.versioned_func(
+    var makeTileEntity = __rtm_mc_wrapper__.versioned_value(
         /**
          * @param tileData {WNBTCompound}
-         * @return TileEntity
+         * @return b_net_minecraft_tileentity_TileEntity
          */
         function (tileData) {
-            return TileEntity.func_145827_c(tileData.__real__) // TileEntity.createAndLoadEntity
+            return TileEntity.func_145827_c(tileData.__real__)
         },
         function (tileData) {
-            return TileEntity.func_190200_a(tileData.__real__) // TileEntity.create
+            return TileEntity.func_190200_a(null, tileData.__real__)
         }
     )
 
@@ -103,7 +113,7 @@ rmw.includeGuard("mc-wrapper:tile-entity", ["mc-wrapper:common", "mc-wrapper:nbt
     /**
      * @constructor
      * @param param {WTileEntityParams}
-     * @returns {WBlock}
+     * @returns {WTileEntity}
      */
     function WTileEntity(param) {
         if (!(this instanceof WTileEntity)) {
@@ -113,19 +123,22 @@ rmw.includeGuard("mc-wrapper:tile-entity", ["mc-wrapper:common", "mc-wrapper:nbt
 
         /** @type WNBTCompound */
         var nbt;
-        /** @type TileEntity */
+        /** @type i_net_minecraft_tileentity_TileEntity */
         var tile;
         if (param instanceof WNBTCompound) {
             nbt = param;
             tile = makeTileEntity(nbt);
         } else if (param instanceof TileEntity) {
+            // noinspection JSValidateTypes
             tile = param;
         } else {
             nbt = new WNBTCompound(param)
             tile = makeTileEntity(nbt);
         }
+        if (!(tile instanceof TileEntity))
+            throw Error(param + " canot convert to TileEntity")
         this.__nbt__ = nbt;
-        /** @type TileEntity */
+        /** @type i_net_minecraft_tileentity_TileEntity */
         this.tile = tile;
     }
 
@@ -149,41 +162,41 @@ rmw.includeGuard("mc-wrapper:tile-entity", ["mc-wrapper:common", "mc-wrapper:nbt
 
     Object.defineProperty(WTileEntity.prototype, "world", {
         get: function () {
-            return this.tile.field_145850_b; // TileEntity.worldObj
+            return WWorld.wrap(this.tile.func_145831_w());
         }
     })
 
     Object.defineProperty(WTileEntity.prototype, "x", {
-        get: __rtm_mc_wrapper__.versioned_func(
+        get: __rtm_mc_wrapper__.versioned_value(
             function () {
-                return this.tile.field_145851_c // TileEntity.xCoord
+                return this.tile.field_145851_c
             },
             function () {
-                return this.tile.field_174879_c // TileEntity.pos
-                    .func_177958_n() // BlockPos.getX() = Vec3i.getX()
+                return this.tile.func_174877_v()
+                    .func_177958_n()
             }
         )
     })
 
     Object.defineProperty(WTileEntity.prototype, "y", {
-        get: __rtm_mc_wrapper__.versioned_func(
+        get: __rtm_mc_wrapper__.versioned_value(
             function () {
                 return this.tile.field_145848_d // TileEntity.yCoord
             },
             function () {
-                return this.tile.field_174879_c // TileEntity.pos
+                return this.tile.func_174877_v() // TileEntity.getPos()
                     .func_177956_o() // BlockPos.getY() = Vec3i.getY()
             }
         )
     })
 
     Object.defineProperty(WTileEntity.prototype, "z", {
-        get: __rtm_mc_wrapper__.versioned_func(
+        get: __rtm_mc_wrapper__.versioned_value(
             function () {
                 return this.tile.field_145849_e // TileEntity.zCoord
             },
             function () {
-                return this.tile.field_174879_c // TileEntity.pos
+                return this.tile.func_174877_v() // TileEntity.getPos()
                     .func_177952_p() // BlockPos.getZ() = Vec3i.getZ()
             }
         )
@@ -203,5 +216,10 @@ rmw.includeGuard("mc-wrapper:tile-entity", ["mc-wrapper:common", "mc-wrapper:nbt
         }
     })
 
+    WTileEntity.wrap = function (tile) {
+        if (tile == null) return null;
+        else return new WTileEntity(tile);
+    }
+
     global.WTileEntity = WTileEntity;
-})()
+})
