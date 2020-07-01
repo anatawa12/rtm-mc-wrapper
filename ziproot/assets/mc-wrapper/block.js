@@ -48,13 +48,13 @@ rmw.includeGuard("mc-wrapper:block", ["mc-wrapper:common"], function (global) {
 
     var getMCBlockByName = __rtm_mc_wrapper__.versioned_value(
         function (name) {
-            var location = new ResourceLocation(name)
+            var location = name
             if (!blockREGISTRY.func_148741_d(location))
                 throw Error(name + " is not valid block name")
             return blockREGISTRY.func_82594_a(location)
         },
         function (name) {
-            var location = name
+            var location = new ResourceLocation(name)
             if (!blockREGISTRY.func_148741_d(location))
                 throw Error(name + " is not valid block name")
             return blockREGISTRY.func_82594_a(location)
@@ -151,7 +151,7 @@ rmw.includeGuard("mc-wrapper:block", ["mc-wrapper:common"], function (global) {
          * instance of net.minecraft.block.Block
          * @type {i_net_minecraft_block_Block}
          */
-        this.__real__ = getMCBlockByName(name);
+        this.__real__ = getMCBlockByName(this.name);
 
         /**
          * instance of net.minecraft.block.Block
