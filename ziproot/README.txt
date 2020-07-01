@@ -2,6 +2,7 @@ this file is encoded with UTF-8 without BOM.
 kono file ha UTF8 BOM nashi desu.
 
 rtm-mc-wrapper
+  ver 1.0.0
 
 1.12.2, 1.7.10の違いを吸収するRTMのスクリプト向けライブラリ
 
