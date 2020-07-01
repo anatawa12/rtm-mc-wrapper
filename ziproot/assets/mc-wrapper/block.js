@@ -42,20 +42,22 @@ rmw.includeGuard("mc-wrapper:block", ["mc-wrapper:common"], function (global) {
     var Block = Packages.net.minecraft.block.Block
     var ResourceLocation = Packages.net.minecraft.util.ResourceLocation
 
+    // noinspection JSUnresolvedVariable
+    /** @type b_net_minecraft_util_RegistryNamespaced */
     var blockREGISTRY = Block.field_149771_c // Block.REGISTRY
 
     var getMCBlockByName = __rtm_mc_wrapper__.versioned_value(
         function (name) {
-            var location = new ResourceLocation(name)
-            if (!blockREGISTRY.func_148741_d(location)) // RegistryNamespaced.containsKey
+            var location = name
+            if (!blockREGISTRY.func_148741_d(location))
                 throw Error(name + " is not valid block name")
-            return blockREGISTRY.func_82594_a(location)// RegistryNamespaced.getObject
+            return blockREGISTRY.func_82594_a(location)
         },
         function (name) {
-            var location = name
-            if (!blockREGISTRY.func_148741_d(location)) // RegistryNamespaced.containsKey
+            var location = new ResourceLocation(name)
+            if (!blockREGISTRY.func_148741_d(location))
                 throw Error(name + " is not valid block name")
-            return blockREGISTRY.func_82594_a(location)// RegistryNamespaced.getObject
+            return blockREGISTRY.func_82594_a(location)
         }
     )
 
@@ -94,12 +96,12 @@ rmw.includeGuard("mc-wrapper:block", ["mc-wrapper:common"], function (global) {
      */
     /**
      * @typedef {Object} WBlockParamsWithNameBlock
-     * @property {Object} block Block
+     * @property {i_net_minecraft_block_Block} block Block
      * @property {number} [meta] メタデータ
      */
     /**
      * @typedef {Object} WBlockParamsWithState
-     * @property {Object} state IBlockState(1.12.2のみ)
+     * @property {i_net_minecraft_block_state_IBlockState} state IBlockState(1.12.2のみ)
      */
 
     /**
@@ -114,15 +116,17 @@ rmw.includeGuard("mc-wrapper:block", ["mc-wrapper:common"], function (global) {
         }
 
         if (param.state != null) {
-            var block = param.state.func_177230_c() // IBlockState.getBlock()
+            var block = param.state.func_177230_c()
+            // noinspection JSUnresolvedFunction
             param.name = block.getRegistryName().toString() // getRegistryName by forge
-            param.meta = block.func_176201_c(blockState)//Block.getMetaFromState
+            param.meta = block.func_176201_c(param.state)
         }
 
         if (param.block != null) {
             if (rmw.is1710) {
                 param.name = blockREGISTRY.func_148750_c(param.block).toString()// RegistryNamespaced.getNameForObject
             } else {
+                // noinspection JSUnresolvedFunction
                 param.name = param.block.getRegistryName().toString() // getRegistryName by forge
             }
         }
@@ -145,9 +149,9 @@ rmw.includeGuard("mc-wrapper:block", ["mc-wrapper:common"], function (global) {
 
         /**
          * instance of net.minecraft.block.Block
-         * @type {object}
+         * @type {i_net_minecraft_block_Block}
          */
-        this.__real__ = getMCBlockByName(name);
+        this.__real__ = getMCBlockByName(this.name);
 
         /**
          * instance of net.minecraft.block.Block

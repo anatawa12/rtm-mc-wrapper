@@ -35,7 +35,8 @@
  * SOFTWARE.
  */
 
-if (__rtm_mc_wrapper__ == null) {
+// noinspection ThisExpressionReferencesGlobalObjectJS
+if (this.__rtm_mc_wrapper__ == null) {
     /**
      * rtm mc wrapperのcommon API
      * どのファイルをロードしてもこのオブジェクトは常に存在する。
@@ -55,6 +56,7 @@ if (__rtm_mc_wrapper__ == null) {
      */
     Object.defineProperty(this, "__rtm_mc_wrapper__", {value: {}});
 
+    // noinspection JSUnresolvedVariable
     /**
      * 1.7.10かどうか
      */

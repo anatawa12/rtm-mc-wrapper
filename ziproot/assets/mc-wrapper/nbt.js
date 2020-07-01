@@ -83,6 +83,7 @@ rmw.includeGuard("mc-wrapper:nbt", ["mc-wrapper:common"], function (global) {
         } else if (param instanceof NBTTagString) {
             return new WNBTString(param)
         } else if (param instanceof NBTTagList) {
+            // noinspection JSCheckFunctionSignatures
             return new WNBTList(param)
         } else if (param instanceof NBTTagCompound) {
             return new WNBTCompound(param)
@@ -123,11 +124,12 @@ rmw.includeGuard("mc-wrapper:nbt", ["mc-wrapper:common"], function (global) {
     /**
      * if the value is empty array, it will be unwrap to {@link WNBTIntArray}
      * @param param {NBTConvertible}
-     * @return {NBTBase}
+     * @return {i_net_minecraft_nbt_NBTBase}
      */
     function unwrapNBT(param) {
         if (param === null) throw new Error("can't unwrap null")
         if (param instanceof NBTBase) {
+            // noinspection JSValidateTypes
             return param
         } else if (Array.isArray(param)) {
             if (param.length === 0 || typeof param[0] == "number")
@@ -139,6 +141,7 @@ rmw.includeGuard("mc-wrapper:nbt", ["mc-wrapper:common"], function (global) {
             case "object":
                 return new WNBTCompound(param).__real__
             case "number":
+                // noinspection JSValidateTypes
                 return new WNBTDouble(param).__real__
             case "string":
                 return new WNBTString(param).__real__
@@ -161,9 +164,9 @@ rmw.includeGuard("mc-wrapper:nbt", ["mc-wrapper:common"], function (global) {
 
     /**
      * @template NBT
-     * @param nbt {NBT & NBTBase}
+     * @param nbt {NBT & i_net_minecraft_nbt_NBTBase}
      * @constructor
-     * @property {NBT & NBTBase} __real__
+     * @property {NBT} __real__
      */
     function WNBTBase (nbt) {
         if (!(this instanceof WNBTBase)) {
@@ -194,7 +197,7 @@ rmw.includeGuard("mc-wrapper:nbt", ["mc-wrapper:common"], function (global) {
 
     /**
      *
-     * @param nbt {NBTBase}
+     * @param nbt
      * @return {WNBTPrimitive}
      * @extends {WNBTBase}
      * @constructor
@@ -205,6 +208,7 @@ rmw.includeGuard("mc-wrapper:nbt", ["mc-wrapper:common"], function (global) {
             return new WNBTPrimitive(nbt)
         }
         WNBTBase.call(this, nbt)
+        this.__real__ = nbt
     }
 
     WNBTPrimitive.prototype = Object.create(WNBTBase.prototype)
@@ -252,10 +256,11 @@ rmw.includeGuard("mc-wrapper:nbt", ["mc-wrapper:common"], function (global) {
     }
 
     /**
-     * @param mc {typeof WNBTPrimitive}
+     * @param mc
+     * @param {string} name
      * @return {typeof WNBTPrimitive}
      */
-    function mkNBTPrimitiveClass(mc) {
+    function mkNBTPrimitiveClass(mc, name) {
         /**
          *
          * @param nbt
@@ -263,7 +268,7 @@ rmw.includeGuard("mc-wrapper:nbt", ["mc-wrapper:common"], function (global) {
          */
         var ctor = function (nbt) {
             if (!(this instanceof ctor)) {
-                NGTLog.debug("you should use "+ mc.name + " as constructor")
+                NGTLog.debug("you should use "+ name + " as constructor")
                 return new ctor(nbt)
             }
             if (!(nbt instanceof mc)) {
@@ -276,41 +281,41 @@ rmw.includeGuard("mc-wrapper:nbt", ["mc-wrapper:common"], function (global) {
     }
 
     /**
-     * @param nbt {number|NBTTagByte}
+     * @param nbt {number|i_net_minecraft_nbt_NBTTagByte}
      * @extends {WNBTPrimitive}
      * @constructor
      */
-    var WNBTByte = mkNBTPrimitiveClass(NBTTagByte)
+    var WNBTByte = mkNBTPrimitiveClass(NBTTagByte, "WNBTByte")
     /**
-     * @param nbt {number|NBTTagFloat}
+     * @param nbt {number|i_net_minecraft_nbt_NBTTagFloat}
      * @extends {WNBTPrimitive}
      * @constructor
      */
-    var WNBTFloat = mkNBTPrimitiveClass(NBTTagFloat)
+    var WNBTFloat = mkNBTPrimitiveClass(NBTTagFloat, "WNBTFloat")
     /**
-     * @param nbt {number|NBTTagDouble}
+     * @param nbt {number|i_net_minecraft_nbt_NBTTagDouble}
      * @extends {WNBTPrimitive}
      * @constructor
      */
-    var WNBTDouble = mkNBTPrimitiveClass(NBTTagDouble)
+    var WNBTDouble = mkNBTPrimitiveClass(NBTTagDouble, "WNBTDouble")
     /**
-     * @param nbt {number|NBTTagInt}
+     * @param nbt {number|i_net_minecraft_nbt_NBTTagInt}
      * @extends {WNBTPrimitive}
      * @constructor
      */
-    var WNBTInt = mkNBTPrimitiveClass(NBTTagInt)
+    var WNBTInt = mkNBTPrimitiveClass(NBTTagInt, "WNBTInt")
     /**
-     * @param nbt {number|NBTTagLong}
+     * @param nbt {number|i_net_minecraft_nbt_NBTTagLong}
      * @extends {WNBTPrimitive}
      * @constructor
      */
-    var WNBTLong = mkNBTPrimitiveClass(NBTTagLong)
+    var WNBTLong = mkNBTPrimitiveClass(NBTTagLong, "WNBTLong")
     /**
-     * @param nbt {number|NBTTagShort}
+     * @param nbt {number|i_net_minecraft_nbt_NBTTagShort}
      * @extends {WNBTPrimitive}
      * @constructor
      */
-    var WNBTShort = mkNBTPrimitiveClass(NBTTagShort)
+    var WNBTShort = mkNBTPrimitiveClass(NBTTagShort, "WNBTShort")
 
     ////////////////////////////////
 
@@ -318,7 +323,7 @@ rmw.includeGuard("mc-wrapper:nbt", ["mc-wrapper:common"], function (global) {
      *
      * @param [param] {NBTCompoundConvertible}
      * @return {WNBTCompound}
-     * @extends {NBTBase}
+     * @extends {WNBTBase.<i_net_minecraft_nbt_NBTTagCompound>}
      * @constructor
      */
     function WNBTCompound(param) {
@@ -335,6 +340,7 @@ rmw.includeGuard("mc-wrapper:nbt", ["mc-wrapper:common"], function (global) {
             nbt = new NBTTagCompound()
         }
         WNBTBase.call(this, nbt)
+        this.__real__ = nbt
 
         if (!(param instanceof NBTTagCompound)) {
             for (var key in param) {
@@ -380,6 +386,7 @@ rmw.includeGuard("mc-wrapper:nbt", ["mc-wrapper:common"], function (global) {
             nbt = new NBTTagString(nbt)
         }
         WNBTBase.call(this, nbt)
+        this.__real__ = nbt
     }
 
     WNBTString.prototype = Object.create(WNBTBase.prototype)
@@ -404,6 +411,7 @@ rmw.includeGuard("mc-wrapper:nbt", ["mc-wrapper:common"], function (global) {
             nbt = new NBTTagList()
         }
         WNBTBase.call(this, nbt)
+        this.__real__ = nbt
         if (Array.isArray(param)) {
             param.forEach(function (v) {
                 this.add(unwrapNBT(param[v]))
@@ -498,6 +506,7 @@ rmw.includeGuard("mc-wrapper:nbt", ["mc-wrapper:common"], function (global) {
 
     /**
      * @param array {number[]}
+     * @return {t_array<t_byte>}
      */
     function makeByteArray(array) {
         var javaArray = Packages.java.lang.reflect.Array.newInstance(Byte.TYPE, array.length)
@@ -526,6 +535,7 @@ rmw.includeGuard("mc-wrapper:nbt", ["mc-wrapper:common"], function (global) {
             nbt = new NBTTagByteArray(makeByteArray(nbt))
         }
         WNBTBase.call(this, nbt)
+        this.__real__ = nbt
     }
 
     WNBTByteArray.prototype = Object.create(WNBTBase.prototype)
@@ -541,6 +551,7 @@ rmw.includeGuard("mc-wrapper:nbt", ["mc-wrapper:common"], function (global) {
 
     /**
      * @param array {number[]}
+     * @return {t_array<t_int>}
      */
     function makeIntArray(array) {
         var javaArray = Packages.java.lang.reflect.Array.newInstance(Integer.TYPE, array.length)
@@ -569,6 +580,7 @@ rmw.includeGuard("mc-wrapper:nbt", ["mc-wrapper:common"], function (global) {
             nbt = new NBTTagIntArray(makeIntArray(nbt))
         }
         WNBTBase.call(this, nbt)
+        this.__real__ = nbt
     }
 
     WNBTIntArray.prototype = Object.create(WNBTBase.prototype)
