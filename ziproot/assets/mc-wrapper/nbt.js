@@ -197,7 +197,7 @@ rmw.includeGuard("mc-wrapper:nbt", ["mc-wrapper:common"], function (global) {
 
     /**
      *
-     * @param nbt {i_net_minecraft_nbt_NBTBase$NBTPrimitive}
+     * @param nbt
      * @return {WNBTPrimitive}
      * @extends {WNBTBase}
      * @constructor
@@ -256,7 +256,7 @@ rmw.includeGuard("mc-wrapper:nbt", ["mc-wrapper:common"], function (global) {
     }
 
     /**
-     * @param mc {typeof i_net_minecraft_nbt_NBTBase$NBTPrimitive}
+     * @param mc
      * @param {string} name
      * @return {typeof WNBTPrimitive}
      */
