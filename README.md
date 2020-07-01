@@ -24,3 +24,7 @@ srg名ではなく、わかり易い名前になります。
 
 また、`rmw`, `__rtm_mc_wrapper__`の名前を変更していただきたいです。
 名前が競合すると他のかたの作成したスクリプトとの互換性が無くなる恐れがあります。
+
+## official examples
+- [Signalpack-with-rtm-mc-wrapper](https://github.com/anatawa12/Signalpack-with-rtm-mc-wrapper)
+  600VさんのSignalPackのrtm-mc-wrapper移植
