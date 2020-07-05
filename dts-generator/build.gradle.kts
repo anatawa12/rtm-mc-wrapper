@@ -110,6 +110,7 @@ tasks {
     )
 
     val generateDts by creating(JavaExec::class) {
+        outputs.file(file("../minecraft.d.ts"))
         group = "application"
         classpath = sourceSets.main.get().runtimeClasspath
         main = application.mainClassName
