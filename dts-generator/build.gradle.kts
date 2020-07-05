@@ -117,7 +117,7 @@ tasks {
         dependsOn(downloadDependencies)
 
         args = listOf(
-                "../minecraft.d.ts",
+                "dts:../minecraft.d.ts",
 
                 "only:str:org/ietf/jgss/",
                 "only:str:org/omg/",

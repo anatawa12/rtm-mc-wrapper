@@ -102,8 +102,14 @@ fun main(args: Array<String>) {
     println("checking needs")
     NeedsChecker.checkNeeds(classes)
 
-    TsGen.generate(classes).apply { 
-        File(outputFile).writeText(this) 
+    val (tag, fileName) = outputFile.split(':', limit = 2)
+    when (tag) {
+        "dts" -> {
+            TsGen.generate(classes).apply {
+                File(fileName).writeText(this)
+            }
+        } 
+        else -> error("$tag is not valid export type")
     }
 }
 
