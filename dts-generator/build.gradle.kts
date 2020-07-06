@@ -118,7 +118,7 @@ tasks {
         dependsOn(downloadDependencies)
 
         args = listOf(
-                "dts:../minecraft.d.ts",
+                "dts:${projectDir.resolve("../minecraft.d.ts")}",
 
                 "only:str:org/ietf/jgss/",
                 "only:str:org/omg/",
