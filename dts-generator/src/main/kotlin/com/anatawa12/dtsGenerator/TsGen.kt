@@ -235,7 +235,7 @@ object TsGen {
         is ArrayTypeSignature -> canPoet(classes, type.element)
         is ClassTypeSignature -> {
             val theSuperClass = classes.getClass(type.name)
-            theSuperClass.gotClass && theSuperClass.accessExternally.and(Opcodes.ACC_PUBLIC) != 0 && type.args.all { it == null || canPoet(classes, it) }
+            theSuperClass.gotClass && theSuperClass.accessExternally.and(Opcodes.ACC_PUBLIC) != 0 && type.args.all { it.type == null || canPoet(classes, it.type) }
         }
     }
 
@@ -258,8 +258,8 @@ object TsGen {
                 if (type.args.isNotEmpty()) {
                     append('<')
                     type.args.joinTo(this) {
-                        if (it == null) "any"
-                        else tsValItfOrPrimitive(it, true)
+                        if (it.type == null) "any"
+                        else tsValItfOrPrimitive(it.type, true)
                     }
                     append('>')
                 }

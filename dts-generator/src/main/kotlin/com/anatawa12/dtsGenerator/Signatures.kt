@@ -37,7 +37,7 @@ class SigReader private constructor(){
 
     private fun classTypeSignature(signature: String): ClassTypeSignature {
         check(signature[i++] == 'L') { fail(signature, "expected class type signature", -1) }
-        val typeArgs = mutableListOf<ReferenceTypeSignature?>()
+        val typeArgs = mutableListOf<TypeArgument>()
         val typeName = buildString {
             while (true) {
                 append(identifier(signature))
@@ -52,11 +52,12 @@ class SigReader private constructor(){
                     i++ // skip '<'
                     while (signature[i] != '>') {
                         typeArgs += when (signature[i++]) {
-                            '*' -> null
-                            '+', '-' -> referenceTypeSignature(signature)
+                            '*' -> TypeArgument(null, null)
+                            '+' -> TypeArgument(referenceTypeSignature(signature), Indicator.Plus)
+                            '-' -> TypeArgument(referenceTypeSignature(signature), Indicator.Minus)
                             else -> {
                                 i--
-                                referenceTypeSignature(signature)
+                                TypeArgument(referenceTypeSignature(signature), null)
                             }
                         }
                     }
@@ -161,7 +162,12 @@ class BaseType private constructor(val type: BaseType.Kind) : JavaTypeSignature(
 }
 
 sealed class ReferenceTypeSignature : JavaTypeSignature()
-class ClassTypeSignature(val name: String, val args: List<ReferenceTypeSignature?>) : ReferenceTypeSignature()
+class TypeArgument(val type: ReferenceTypeSignature?, val indicator: Indicator?)
+enum class Indicator {
+    Plus, 
+    Minus,
+}
+class ClassTypeSignature(val name: String, val args: List<TypeArgument>) : ReferenceTypeSignature()
 class TypeVariable(val name: String) : ReferenceTypeSignature()
 class ArrayTypeSignature(val element: JavaTypeSignature) : ReferenceTypeSignature()
 
