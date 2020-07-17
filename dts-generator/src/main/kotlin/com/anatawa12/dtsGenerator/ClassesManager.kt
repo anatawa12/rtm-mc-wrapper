@@ -63,6 +63,7 @@ data class ThePackage(val name: String, val manager: ClassesManager) : TheElemen
 data class TheClass(val name: String, val manager: ClassesManager) : TheElement(TheElementType.Class) {
     var need = false
     var gotClass = false
+    var detectStatic = false
     var outerClass: TheClass? = null
     /** internal name */
     var superClass: String? = null

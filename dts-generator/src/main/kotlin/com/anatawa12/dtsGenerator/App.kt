@@ -131,6 +131,9 @@ fun main(args: Array<String>) {
                 File(fileName).writeText(this)
             }
         }
+        "jar" -> {
+            JarGen.generate(genProcess, File(fileName))
+        }
         else -> error("$tag is not valid export type")
     }
 }
