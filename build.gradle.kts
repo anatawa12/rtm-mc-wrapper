@@ -83,7 +83,9 @@ mainComm.apply {
 tasks.jar {
     for (main in listOf(main1122, main1710, mainComm)) {
         from(main.output.classesDirs)
-        from(main.output.resourcesDir)
+        from(main.output.resourcesDir!!) {
+            expand("version_name" to project.version)
+        }
     }
     dependsOn(":dts-generator:generateApiDts")
     from("build/generated/api.d.ts")
