@@ -1,14 +1,14 @@
-package com.anatawa12.mcWrapper.v1;
+package com.anatawa12.mcWrapper.v2;
 
-import net.minecraft.nbt.NBTTagFloat;
+import net.minecraft.nbt.NBTTagInt;
 
-public final class WNBTFloat extends WNBTPrimitive<NBTTagFloat> {
-    public WNBTFloat(NBTTagFloat real) {
+public final class WNBTInt extends WNBTPrimitive<NBTTagInt> {
+    public WNBTInt(NBTTagInt real) {
         super(real);
     }
 
-    public WNBTFloat(float value) {
-        super(new NBTTagFloat(value));
+    public WNBTInt(int value) {
+        super(new NBTTagInt(value));
     }
 
     @Override

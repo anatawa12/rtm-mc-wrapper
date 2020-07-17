@@ -8,9 +8,9 @@ rtm-mc-wrapper
 
 内容物
 - api.d.ts
-> 1.1.0からのAPI向けの.d.tsになります。
-- api.included.v1.d.ts
-> `includePackage(com.anatawa12.mcWrapper.v1)`をincludeした際のd.ts
+> 2.0.0からのAPI向けの.d.tsになります。
+- api.included.v2.d.ts
+> `includePackage(com.anatawa12.mcWrapper.v2)`をincludeした際のd.ts
 - com/anatawa12/mcWrapper ディレクトリ
 > API本体の実装が入っています。コンパイル済.classファイルです。
 

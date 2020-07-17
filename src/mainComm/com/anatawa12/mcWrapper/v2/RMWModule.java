@@ -1,4 +1,4 @@
-package com.anatawa12.mcWrapper.v1;
+package com.anatawa12.mcWrapper.v2;
 
 public interface RMWModule {
     void eval(Object global);

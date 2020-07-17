@@ -1,11 +1,9 @@
-package com.anatawa12.mcWrapper.v1;
+package com.anatawa12.mcWrapper.v2;
 
 import com.anatawa12.mcWrapper.internal.McWrapper;
 import com.anatawa12.mcWrapper.internal.WEntityImpl;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
-
-import java.util.Map;
 
 public final class WEntity {
     private static final WEntityImpl impl = McWrapper.getVersionedFactory("WEntityImplImpl");

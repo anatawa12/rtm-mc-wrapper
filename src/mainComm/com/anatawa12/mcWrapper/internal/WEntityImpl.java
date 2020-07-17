@@ -1,6 +1,6 @@
 package com.anatawa12.mcWrapper.internal;
 
-import com.anatawa12.mcWrapper.v1.WNBTCompound;
+import com.anatawa12.mcWrapper.v2.WNBTCompound;
 import net.minecraft.entity.Entity;
 
 public interface WEntityImpl {

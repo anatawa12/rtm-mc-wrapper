@@ -1,11 +1,10 @@
 package com.anatawa12.mcWrapper.internal.mc1710;
 
-import com.anatawa12.mcWrapper.internal.InternalSignature;
 import com.anatawa12.mcWrapper.internal.WWorldImpl;
-import com.anatawa12.mcWrapper.v1.WBlock;
-import com.anatawa12.mcWrapper.v1.WTileEntity;
-import com.anatawa12.mcWrapper.v1.WWorld;
-import com.anatawa12.mcWrapper.v1._InternalAccessor;
+import com.anatawa12.mcWrapper.v2.WBlock;
+import com.anatawa12.mcWrapper.v2.WTileEntity;
+import com.anatawa12.mcWrapper.v2.WWorld;
+import com.anatawa12.mcWrapper.v2._InternalAccessor;
 import net.minecraft.world.World;
 
 import java.util.WeakHashMap;

@@ -1,8 +1,8 @@
 package com.anatawa12.mcWrapper.internal;
 
-import com.anatawa12.mcWrapper.v1.WBlock;
-import com.anatawa12.mcWrapper.v1.WTileEntity;
-import com.anatawa12.mcWrapper.v1.WWorld;
+import com.anatawa12.mcWrapper.v2.WBlock;
+import com.anatawa12.mcWrapper.v2.WTileEntity;
+import com.anatawa12.mcWrapper.v2.WWorld;
 import net.minecraft.world.World;
 
 public interface WWorldImpl {

@@ -1,6 +1,5 @@
-package com.anatawa12.mcWrapper.v1;
+package com.anatawa12.mcWrapper.v2;
 
-import com.anatawa12.mcWrapper.internal.McWrapper;
 import com.anatawa12.mcWrapper.internal.utils.JSUtil;
 import net.minecraft.nbt.*;
 

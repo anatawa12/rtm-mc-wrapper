@@ -1,4 +1,4 @@
-package com.anatawa12.mcWrapper.v1;
+package com.anatawa12.mcWrapper.v2;
 
 import net.minecraft.nbt.NBTTagString;
 

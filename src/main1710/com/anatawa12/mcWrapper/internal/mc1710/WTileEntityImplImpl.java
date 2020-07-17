@@ -1,9 +1,9 @@
 package com.anatawa12.mcWrapper.internal.mc1710;
 
 import com.anatawa12.mcWrapper.internal.WTileEntityImpl;
-import com.anatawa12.mcWrapper.v1.WNBTCompound;
-import com.anatawa12.mcWrapper.v1.WTileEntity;
-import com.anatawa12.mcWrapper.v1._InternalAccessor;
+import com.anatawa12.mcWrapper.v2.WNBTCompound;
+import com.anatawa12.mcWrapper.v2.WTileEntity;
+import com.anatawa12.mcWrapper.v2._InternalAccessor;
 import net.minecraft.tileentity.TileEntity;
 
 import java.lang.reflect.Field;
