@@ -51,39 +51,13 @@ object JarGen {
 
     private fun getPossibleSuperClass(args: GenProcessArgs, superClass: ClassTypeSignature): ClassTypeSignature? {
         var currentClass = superClass
-        while (!canPoet(args, currentClass)) {
+        while (!GenUtil.canPoet(args, currentClass)) {
             val currentTheClass = args.classes.getClass(currentClass.name)
             if (!currentTheClass.gotClass) return null // cannot infer
             currentClass = currentTheClass.signature?.superClass
                     ?: ClassTypeSignature(currentTheClass.superClass!!, emptyList())
         }
         return currentClass
-    }
-
-    private fun canVisitMethod(args: GenProcessArgs, theClass: TheClass, method: TheSingleMethod): Boolean {
-        val name = method.name
-        if (!method.signature.params.all { canPoet(args, it) }) return false
-        if (method.signature.result != null && !canPoet(args, method.signature.result!!)) return false
-        if (name != "<init>" && method.accessChecked.and(Opcodes.ACC_PUBLIC) == 0) return false
-        if (method.accessChecked.and(Opcodes.ACC_SYNTHETIC) != 0) return false
-        return true
-    }
-
-    private fun canPoetClass(args: GenProcessArgs, type: String): Boolean {
-        val theClass = args.classes.getClass(type)
-        if (!args.testElement(theClass)) return false
-        if (type.startsWith("java/") || type.startsWith("javax/")) return true
-        if (args.alwaysFound.any { type.startsWith(it.replace('.', '/')) }) return true
-        return theClass.gotClass && theClass.accessExternally.and(Opcodes.ACC_PUBLIC) != 0
-    }
-
-    private fun canPoet(args: GenProcessArgs, type: JavaTypeSignature): Boolean = when (type) {
-        is BaseType -> true
-        is TypeVariable -> true
-        is ArrayTypeSignature -> canPoet(args, type.element)
-        is ClassTypeSignature -> {
-            canPoetClass(args, type.name) && type.args.all { it.type == null || canPoet(args, it.type) }
-        }
     }
 
     object ClassFileGen {
@@ -113,13 +87,13 @@ object JarGen {
             if (theClass.signature != null) {
                 val sig = theClass.signature!!
                 superClass = getPossibleSuperClass(args, sig.superClass)
-                superInterfaces = sig.superInterfaces.filter { canPoet(args, it) }
+                superInterfaces = sig.superInterfaces.filter { GenUtil.canPoet(args, it) }
             } else {
                 superClass = theClass.superClass
                         ?.let { getPossibleSuperClass(args, ClassTypeSignature(it, emptyList())) }
                 superInterfaces = theClass.interfaces
                         .asSequence()
-                        .filter { canPoetClass(args, it) }
+                        .filter { GenUtil.canPoetClass(args, it) }
                         .map { ClassTypeSignature(it, listOf()) }
                         .toList()
             }
@@ -159,8 +133,7 @@ object JarGen {
                     }
                     is TheMethods -> {
                         for ((_, method) in child.singles) {
-                            if (!args.testElement(method)) continue
-                            if (!canVisitMethod(args, theClass, method)) continue
+                            if (!GenUtil.canVisitMethod(args, theClass, method)) continue
 
                             writer.visitMethod(
                                     method.accessChecked,
@@ -177,9 +150,7 @@ object JarGen {
                         }
                     }
                     is TheField -> {
-                        if (!canPoet(args, child.signature)) continue@children
-                        if (child.accessChecked.and(Opcodes.ACC_PUBLIC) == 0) continue@children
-                        if (child.accessChecked.and(Opcodes.ACC_SYNTHETIC) != 0) continue@children
+                        if (!GenUtil.canVisitField(args, theClass, child)) continue@children
 
                         writer.visitField(
                                 child.accessChecked,
@@ -221,7 +192,7 @@ object JarGen {
         }
 
         private fun canVisitMethodSource(args: GenProcessArgs, theClass: TheClass, method: TheSingleMethod): Boolean {
-            if (!canVisitMethod(args, theClass, method)) return false
+            if (!GenUtil.canVisitMethod(args, theClass, method)) return false
             val name = method.name
             if (theClass.accessExternallyChecked.and(Opcodes.ACC_ENUM) != 0) {
                 if (name == "<init>") return false
@@ -294,7 +265,7 @@ object JarGen {
                 }
                 var first = true
                 for (superType in sig.superInterfaces) {
-                    if (!canPoet(args, superType)) continue
+                    if (!GenUtil.canPoet(args, superType)) continue
                     if (first) append(implements)
                     else append(", ")
                     first = false
@@ -309,7 +280,7 @@ object JarGen {
                 }
                 var first = true
                 for (superType in theClass.interfaces) {
-                    if (!canPoetClass(args, superType)) continue
+                    if (!GenUtil.canPoetClass(args, superType)) continue
                     if (first) append(implements)
                     else append(", ")
                     first = false
@@ -328,7 +299,7 @@ object JarGen {
                         is TheMethods -> {
                         }
                         is TheField -> {
-                            if (!canPoet(args, child.signature)) continue@children
+                            if (!GenUtil.canPoet(args, child.signature)) continue@children
                             if (child.accessChecked.and(Opcodes.ACC_ENUM) == 0) continue@children
                             generateComment(child.comments, this)
                             appendln("$name,")
@@ -352,7 +323,6 @@ object JarGen {
                     }
                     is TheMethods -> {
                         for ((_, method) in child.singles) {
-                            if (!args.testElement(method)) continue
                             if (!canVisitMethodSource(args, theClass, method)) continue
 
                             if (!first) appendln()
@@ -388,10 +358,8 @@ object JarGen {
                         }
                     }
                     is TheField -> {
-                        if (!canPoet(args, child.signature)) continue@children
+                        if (!GenUtil.canVisitField(args, theClass, child)) continue@children
                         if (child.accessChecked.and(Opcodes.ACC_ENUM) != 0) continue@children
-                        if (child.accessChecked.and(Opcodes.ACC_PUBLIC) == 0) continue@children
-                        if (child.accessChecked.and(Opcodes.ACC_SYNTHETIC) != 0) continue@children // must not SYNTHETIC
 
                         if (!first) appendln()
                         first = false

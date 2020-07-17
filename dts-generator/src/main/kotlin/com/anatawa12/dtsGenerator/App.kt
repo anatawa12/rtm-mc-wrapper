@@ -122,12 +122,12 @@ fun main(args: Array<String>) {
     }
 
     println("checking needs")
-    NeedsChecker.checkNeeds(classes)
+    NeedsChecker.checkNeeds(genProcess, classes)
 
     val (tag, fileName) = outputFile.split(':', limit = 2)
     when (tag) {
         "dts" -> {
-            TsGen.generate(classes).apply {
+            TsGen.generate(genProcess).apply {
                 File(fileName).writeText(this)
             }
         }
@@ -246,7 +246,7 @@ fun parseConditionMain(parts: List<String>, index: Int): Pair<Pair<(TheElement) 
 object NeedsChecker {
     private fun <T> MutableIterable<T>.removeFirst() = iterator().run { next().also { remove() } }
 
-    fun checkNeeds(classes: ClassesManager) {
+    fun checkNeeds(args: GenProcessArgs, classes: ClassesManager) {
         val willCheck = getAllNeeds(classes)
         val _checked = mutableSetOf<TheClass>()
         val checked = _checked as Set<TheClass>
@@ -272,12 +272,13 @@ object NeedsChecker {
                 addTypeParms(willCheck, checked, classes, signature.params)
             }
 
-            for (element in theClass.children.values) {
+            children@for (element in theClass.children.values) {
                 when (element) {
                     is ThePackage -> error("package is not allowed for child of ckass")
                     is TheClass -> willCheck += element
                     is TheMethods -> {
                         for (method in element.singles.values) {
+                            if (!GenUtil.canVisitMethod(args, theClass, method)) continue@children
                             addTypeParms(willCheck, checked, classes, method.signature.typeParams)
                             for (param in method.signature.params) {
                                 addType(willCheck, checked, classes, param)
@@ -286,6 +287,7 @@ object NeedsChecker {
                         }
                     }
                     is TheField -> {
+                        if (!GenUtil.canVisitField(args, theClass, element)) continue@children
                         addType(willCheck, checked, classes, element.signature)
                     }
                 }
