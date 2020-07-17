@@ -4,10 +4,7 @@ import org.objectweb.asm.Opcodes
 
 
 object TsGen {
-    fun generate(classes: ClassesManager) = buildString {
-        appendln("declare const Packages: p_")
-        appendln("interface String extends i_java_lang_String {}")
-        appendln()
+    fun generate(args: GenProcessArgs) = buildSrc {
         appendln("type t_byte = number")
         appendln("type t_char = number")
         appendln("type t_double = number")
@@ -16,15 +13,17 @@ object TsGen {
         appendln("type t_long = number")
         appendln("type t_short = number")
         appendln("type t_boolean = boolean")
+        appendln("type t_String = String")
         appendln("type t_array<T> = Array<T>")
         appendln()
-        generatePackage(classes, classes.rootPackage, this)
+        append("declare ")
+        generateClassesInPackage(args, "Packages", args.classes.rootPackage, this)
         appendln()
     }
 
     private val extraTypeMapping = mutableMapOf(
             "java/lang/Object" to "unknown",
-            "java/lang/String" to "String",
+            "java/lang/String" to "t_String",
             "java/lang/Byte" to "t_byte",
             "java/lang/Character" to "t_char",
             "java/lang/Double" to "t_double",
@@ -35,44 +34,39 @@ object TsGen {
             "java/lang/Boolean" to "t_boolean"
     )
 
-    private const val idt = "    "
-
-    private fun generatePackage(classes: ClassesManager, thePackage: ThePackage, builder: StringBuilder): StringBuilder = builder.apply {
-        val packageItfName = thePackage.tsItfName
+    private fun generateClassesInPackage(args: GenProcessArgs, packageFQN: String, thePackage: ThePackage, builder: SrcBuilder): SrcBuilder = builder.apply {
         val children = thePackage.children.entries
                 .filter { elementFilter(it.value) }
                 .sortedWith(compareBy<Map.Entry<String, TheElement>> { it.value.type }
                         .thenBy { it.key })
-        appendln("interface $packageItfName {")
+
+        if (children.size == 1) {
+            val (name, child) = children.single()
+            if (child is ThePackage) {
+                generateClassesInPackage(args, "$packageFQN.$name", child, builder)
+                return@apply
+            }
+        }
+        appendln("namespace $packageFQN {")
+        indent()
         children@for ((name, child) in children) {
             when (child) {
                 is ThePackage -> {
-                    appendln("$idt[${string(name)}]: ${child.tsItfName}")
+                    generateClassesInPackage(args, name, child, builder)
                 }
                 is TheClass -> {
                     if (child.accessExternally.and(Opcodes.ACC_PUBLIC) == 0) continue@children
-                    generateComment(child.comments, "$idt", this)
-                    appendln("$idt[${string(name)}]: ${child.tsCtorItfName}")
+                    generateClass(args, child, this)
                 }
                 is TheMethods -> error("method cannot be child of package")
                 is TheField -> error("field cannot be child of package")
+                TheDuplicated -> {
+                    // nop
+                }
             }
         }
+        outdent()
         appendln("}")
-        appendln()
-        children@for ((name, child) in children) {
-            when (child) {
-                is ThePackage -> {
-                    generatePackage(classes, child, this)
-                }
-                is TheClass -> {
-                    if (child.accessExternally.and(Opcodes.ACC_PUBLIC) == 0) continue@children
-                    generateClass(classes, child, this)
-                }
-                is TheMethods -> error("method cannot be child of package")
-                is TheField -> error("field cannot be child of package")
-            }
-        }
     }
 
     private fun elementFilter(element: TheElement): Boolean = when (element) {
@@ -83,160 +77,85 @@ object TsGen {
         is TheField -> true
     }
 
-    private fun generateClass(classes: ClassesManager, theClass: TheClass, builder: StringBuilder, outerTypeParams: List<TypeParam> = listOf(), innerDeep: Int = 0): StringBuilder = builder.apply {
-        val ctorItfName = theClass.tsCtorItfName
-        val valItfName = theClass.tsValItfName
-        val valBodyItfName = theClass.tsValBodyItfName
+    private fun generateClass(args: GenProcessArgs, theClass: TheClass, builder: SrcBuilder) = builder.apply {
         val children = theClass.children.entries
                 .sortedWith(compareBy<Map.Entry<String, TheElement>> { it.value.type }
                         //.thenComparator { a, b ->  }
                         .thenBy { it.key })
-        val typeParams = outerTypeParams + theClass.signature?.params.orEmpty()
+        val typeParams = theClass.signature?.params.orEmpty()
+        val simpleName = theClass.name.substringAfterLast('/').substringAfterLast('.').substringAfterLast('$')
+
+        var superClass: ClassTypeSignature?
 
         // constructor class
-        generateComment(theClass.comments, "", this)
-        appendln("interface $ctorItfName {")
+        generateComment(theClass.comments, this)
+        append("class $simpleName")
+        typeParams(this, typeParams)
+        if (theClass.signature != null) {
+            val sig = theClass.signature!!
+            superClass = sig.superClass
+        } else {
+            if (theClass.superClass != null) {
+                superClass = ClassTypeSignature(theClass.superClass!!, emptyList())
+            } else {
+                superClass = null
+            }
+        }
+        if (superClass?.name == "java/lang/Object")
+            superClass = null
+        if (superClass != null) { 
+            append(" extends ")
+            append(tsValItfOrPrimitive(superClass, true))
+        }
+
+        appendln(" {")
+        indent()
         var first = true
         children@for ((name, child) in children) {
             when (child) {
                 is ThePackage -> error("package cannot be child of class")
-                is TheClass -> {
-                    if (child.accessExternallyChecked.and(Opcodes.ACC_PUBLIC) == 0) continue@children
-                    if (child.accessExternallyChecked.and(Opcodes.ACC_STATIC) == 0) continue@children // must static
-                    if (!first) appendln()
-                    first = false
-                    generateComment(child.comments, "$idt", this)
-                    appendln("$idt[${string(name)}]: ${child.tsCtorItfName}")
-                }
+                is TheClass -> System.err.println("warn: inner class not supported: $child")
                 is TheMethods -> {
-                    for ((desc, method) in child.singles) {
-                        if (!method.signature.params.all { canPoet(classes, it) }) continue
-                        if (method.signature.result != null && !canPoet(classes, method.signature.result!!)) continue
-                        if (method.accessChecked.and(Opcodes.ACC_PUBLIC) == 0) continue
-                        if (method.accessChecked.and(Opcodes.ACC_SYNTHETIC) != 0) continue // must not SYNTHETIC
+                    for ((_, method) in child.singles) {
+                        if (!GenUtil.canVisitMethod(args, theClass, method)) continue
 
                         if (method.name == "<init>") {
                             if (theClass.accessExternallyChecked.and(Opcodes.ACC_ABSTRACT) != 0) continue
                             if (!first) appendln()
                             first = false
-                            generateComment(method.comments, "$idt", this)
-                            appendln("${idt}new${ctorDesc(method.signature, theClass, innerDeep)}")
+                            generateComment(method.comments, this)
+                            appendln("constructor${ctorDesc(method.signature)}")
                             continue
                         }
-                        if (method.accessChecked.and(Opcodes.ACC_STATIC) == 0) continue // must static
                         if (!first) appendln()
                         first = false
-                        generateComment(method.comments, "$idt", this)
-                        appendln("$idt[${string(name)}]${methodDesc(method.signature)}")
+                        if (method.accessChecked.and(Opcodes.ACC_STATIC) != 0) {
+                            append("static ")
+                        }
+                        generateComment(method.comments, this)
+                        appendln("$name${methodDesc(method.signature)}")
                     }
                 }
                 is TheField -> {
-                    if (!canPoet(classes, child.signature)) continue@children
-                    if (child.accessChecked.and(Opcodes.ACC_PUBLIC) == 0) continue@children
-                    if (child.accessChecked.and(Opcodes.ACC_STATIC) == 0) continue@children // must static
-                    if (child.accessChecked.and(Opcodes.ACC_SYNTHETIC) != 0) continue@children // must not SYNTHETIC
-                    if (!first) appendln()
-                    first = false
-                    generateComment(child.comments, "$idt", this)
-                    appendln("$idt[${string(name)}]: ${tsValItfOrPrimitive(child.signature)}")
-                }
-            }
-        }
-        appendln("}")
-        appendln()
-        // instance body class
-        generateComment(theClass.comments, "", this)
-        append("type $valBodyItfName")
-        typeParams(this, typeParams)
-        append(" = ")
-        if (theClass.signature != null) {
-            val sig = theClass.signature!!
-            for (superType in (sig.superInterfaces + sig.superClass)) {
-                if (!canPoet(classes, superType)) continue
-                append(tsValItfOrPrimitive(superType, true))
-                append(" & ")
-            }
-        } else {
-            val superClasses = listOfNotNull(theClass.superClass) + theClass.interfaces
-            for (superType in superClasses) {
-                val theSuperClass = classes.getClass(superType)
-                if (!theSuperClass.gotClass) continue
-                if (theSuperClass.accessExternally.and(Opcodes.ACC_PUBLIC) == 0) continue
-                append("i_" + superType.replace('/', '_'))
-                append(" & ")
-            }
-        }
-        appendln("{")
-        first = true
-        children@for ((name, child) in children) {
-            when (child) {
-                is ThePackage -> error("package cannot be child of class")
-                is TheClass -> {
-                    if (child.accessExternallyChecked.and(Opcodes.ACC_PUBLIC) == 0) continue@children
-                    if (child.accessExternallyChecked.and(Opcodes.ACC_STATIC) != 0) continue@children // must not static
-                    if (!first) appendln()
-                    first = false
-                    generateComment(child.comments, "$idt", this)
-                    appendln("$idt[${string(name)}]: ${child.tsCtorItfName}")
-                }
-                is TheMethods -> {
-                    for ((desc, method) in child.singles) {
-                        if (!method.signature.params.all { canPoet(classes, it) }) continue
-                        if (method.signature.result != null && !canPoet(classes, method.signature.result!!)) continue
-                        if (method.accessChecked.and(Opcodes.ACC_STATIC) != 0) continue // must not static
-                        if (method.accessChecked.and(Opcodes.ACC_SYNTHETIC) != 0) continue // must not SYNTHETIC
-                        if (method.name == "<init>") continue
-                        generateComment(method.comments, "$idt", this)
-                        appendln("$idt[${string(name)}]${methodDesc(method.signature)}")
-                    }
-                }
-                is TheField -> {
-                    if (!canPoet(classes, child.signature)) continue@children
-                    if (child.accessChecked.and(Opcodes.ACC_STATIC) != 0) continue@children // must not static
-                    if (child.accessChecked.and(Opcodes.ACC_SYNTHETIC) != 0) continue@children // must not SYNTHETIC
-                    generateComment(child.comments, "$idt", this)
-                    appendln("$idt[${string(name)}]: ${tsValItfOrPrimitive(child.signature)}")
-                }
-            }
-        }
-        appendln("}")
-        appendln()
-        // instance class
-        generateComment(theClass.comments, "", this)
-        append("interface $valItfName")
-        typeParams(this, typeParams)
-        append(" extends ")
-        append(valBodyItfName)
-        bodyTypeArgs(this, typeParams)
-        appendln(" {}")
-        appendln()
-        children@for ((name, child) in children) {
-            when (child) {
-                is ThePackage -> error("package cannot be child of class")
-                is TheClass -> {
-                    if (child.accessExternallyChecked.and(Opcodes.ACC_PUBLIC) == 0) continue@children
-                    if (child.accessExternallyChecked.and(Opcodes.ACC_STATIC) == 0){
-                        // not static
-                        generateClass(classes, child, this, typeParams, innerDeep + 1)
-                    } else {
-                        // static
-                        generateClass(classes, child, this)
-                    }
-                }
-                is TheMethods -> {}
-                is TheField -> {}
-            }
-        }
-    }
+                    if (!GenUtil.canVisitField(args, theClass, child)) continue@children
 
-    private fun canPoet(classes: ClassesManager, type: JavaTypeSignature): Boolean = when (type) {
-        is BaseType -> true
-        is TypeVariable -> true
-        is ArrayTypeSignature -> canPoet(classes, type.element)
-        is ClassTypeSignature -> {
-            val theSuperClass = classes.getClass(type.name)
-            theSuperClass.gotClass && theSuperClass.accessExternally.and(Opcodes.ACC_PUBLIC) != 0 && type.args.all { it.type == null || canPoet(classes, it.type) }
+                    if (!first) appendln()
+                    first = false
+                    if (child.accessChecked.and(Opcodes.ACC_STATIC) != 0) {
+                        append("static ")
+                    }
+
+                    generateComment(child.comments, this)
+                    appendln("$name: ${tsValItfOrPrimitive(child.signature)}")
+                }
+                TheDuplicated -> {
+                    // nop
+                }
+            }
         }
+        outdent()
+        appendln("}")
+        appendln()
     }
 
     private fun tsValItfOrPrimitive(type: JavaTypeSignature, superType: Boolean = false): String = when (type) {
@@ -254,7 +173,7 @@ object TsGen {
             if (!superType && type.name in extraTypeMapping) {
                 append(extraTypeMapping[type.name])
             } else {
-                append("i_" + type.name.replace('/', '_'))
+                append("Packages." + type.name.replace('/', '.'))
                 if (type.args.isNotEmpty()) {
                     append('<')
                     type.args.joinTo(this) {
@@ -269,9 +188,9 @@ object TsGen {
         is ArrayTypeSignature -> "t_array<${tsValItfOrPrimitive(type.element, superType)}>"
     }
 
-    private fun typeParams(builder: StringBuilder, typeParams: List<TypeParam>) = with(builder) {
+    private fun typeParams(builder: SrcBuilder, typeParams: List<TypeParam>) = with(builder) {
         if (typeParams.isNotEmpty()) {
-            var containList = mutableSetOf<String>()
+            val containList = mutableSetOf<String>()
             var id = 0
             val namePair = typeParams.asReversed()
                     .map {
@@ -305,32 +224,7 @@ object TsGen {
         }
     }
 
-    private fun bodyTypeArgs(builder: StringBuilder, typeParams: List<TypeParam>) = with(builder) {
-        if (typeParams.isNotEmpty()) {
-            val containList = mutableSetOf<String>()
-            var id = 0
-            val namePair = typeParams.asReversed()
-                    .map {
-                        if (it.name in containList) {
-                            "${it.name}_${id++}"
-                        } else {
-                            containList.add(it.name)
-                            it.name
-                        }
-                    }
-                    .asReversed()
-            append('<')
-            var first = true
-            for (name in namePair) {
-                if (!first) append(", ")
-                first = false
-                append(name)
-            }
-            append('>')
-        }
-    }
-
-    private fun methodDesc(signature: MethodSignature) = buildString {
+    private fun methodDesc(signature: MethodSignature) = buildSrc {
         typeParams(this, signature.typeParams)
         append('(')
         var first = true
@@ -346,40 +240,10 @@ object TsGen {
             append(tsValItfOrPrimitive(signature.result))
     }
 
-    private fun ctorDesc(
-            signature: MethodSignature,
-            theClass: TheClass,
-            skipCountIn: Int
-    ) = buildString {
-        val typeParams = theClass.signature?.params.orEmpty()
-        val result = theClass.typeSignature
-        
-        var skipCount = 0
-        if (true) {
-            val outers = mutableListOf<TheClass>()
-            var cur = theClass
-            while (true) {
-                cur = cur.outerClass ?: break
-                outers.add(cur)
-            }
-            if (signature.params.size >= outers.size) { 
-                var shouldSkip = true
-                for ((i, theClass) in outers.withIndex()) {
-                    val param = signature.params[i]
-                    if (param !is ClassTypeSignature
-                            || param.name != theClass.name) {
-                        shouldSkip = false
-                        break
-                    }
-                }
-                if (shouldSkip) 
-                    skipCount = skipCountIn
-            }
-        }
-        typeParams(this, typeParams)
+    private fun ctorDesc(signature: MethodSignature) = buildSrc {
         append('(')
         var first = true
-        for ((i, typeSignature) in signature.params.asSequence().drop(skipCount).withIndex()) {
+        for ((i, typeSignature) in signature.params.asSequence().drop(0).withIndex()) {
             if (!first) append(", ")
             first = false
             append("par$i: ${tsValItfOrPrimitive(typeSignature)}")
@@ -387,19 +251,17 @@ object TsGen {
         append(")")
     }
 
-    private fun generateComment(comments: MutableList<String>, indent: String, builder: StringBuilder) = builder.apply {
+    private fun generateComment(comments: MutableList<String>, builder: SrcBuilder) = builder.apply {
         if (comments.isEmpty()) return@apply
-        appendln("$indent/**")
+        appendln("/**")
         var first = true
         for (comment in comments) {
-            if (!first) appendln("$indent * ")
+            if (!first) appendln(" * ")
             first = false
             for (line in comment.lineSequence()) {
-                appendln("$indent * $line")
+                appendln(" * $line")
             }
         }
-        appendln("$indent */")
+        appendln(" */")
     }
-
-    private fun string(name: String): String = "'$name'"
 }
