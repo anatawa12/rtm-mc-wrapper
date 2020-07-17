@@ -22,7 +22,7 @@ repositories {
 val apiComm = sourceSets.create("apiComm") {
     java {
         srcDirs.clear()
-        srcDir("src/api${name}Manually")
+        srcDir("src/apiCommManually")
     }
     resources.srcDirs.clear()
 }
