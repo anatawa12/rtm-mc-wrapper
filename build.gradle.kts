@@ -19,6 +19,16 @@ repositories {
     maven(url="https://libraries.minecraft.net/")
 }
 
+/**
+ * a source set for generating .d.ts of jdk classes
+ */
+val dtsJdk = sourceSets.create("dtsJdk") {
+    java {
+        setSrcDirs(listOf("src/dtsJdk"))
+    }
+    resources.srcDirs.clear()
+}
+
 val apiComm = sourceSets.create("apiComm") {
     java {
         srcDirs.clear()

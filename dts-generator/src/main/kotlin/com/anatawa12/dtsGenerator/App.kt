@@ -586,7 +586,7 @@ fun readClassFile(stream: InputStream, args: EndProcessArgs) {
                 theClass.accessExternally = access
             theClass.superClass = superName
             theClass.interfaces = interfaces.orEmpty()
-            val signature = signature ?: args.signatures[name]
+            val signature = args.signatures[name] ?: signature
             if (signature != null) 
                 theClass.signature = SigReader.current.classSignature(signature, name)
             if (args.comment != null) theClass.comments.add(args.comment!!)
@@ -596,7 +596,7 @@ fun readClassFile(stream: InputStream, args: EndProcessArgs) {
         override fun visitMethod(access: Int, name: String, desc: String, signature: String?, exceptions: Array<out String>?): MethodVisitor? {
             if (access.and(Opcodes.ACC_SYNTHETIC) != 0) return null
             theClass.getMethod(name, desc)?.also {
-                val signature = signature ?: args.signatures["${this.name}:$name$desc"]
+                val signature = args.signatures["${this.name}:$name$desc"] ?: signature
                 if (it.access != -1) {
                     it.access = mergeAccess(it.access, access)
                     //exits
@@ -627,7 +627,7 @@ fun readClassFile(stream: InputStream, args: EndProcessArgs) {
 
         override fun visitField(access: Int, name: String, desc: String, signature: String?, value: Any?): FieldVisitor? {
             if (access.and(Opcodes.ACC_SYNTHETIC) != 0) return null
-            val signature = signature ?: args.signatures["${this.name}:$name"]
+            val signature = args.signatures["${this.name}:$name"]  ?: signature
             theClass.getField(name, desc)?.also {
                 if (signature != null) 
                     it.signature = SigReader.current.fieldDesc(signature, "${this.name}/$name:$desc")
