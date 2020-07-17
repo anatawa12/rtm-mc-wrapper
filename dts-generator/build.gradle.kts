@@ -131,7 +131,7 @@ tasks {
     )
 
     val generateCommJava by creating(JavaExec::class) {
-        outputs.dir(file("../src/apiComm"))
+        outputs.file(file("../build/generated/apiComm.jar"))
         group = "application"
         classpath = sourceSets.main.get().runtimeClasspath
         main = application.mainClassName
@@ -139,7 +139,7 @@ tasks {
         dependsOn(downloadDependencies)
 
         args = listOf(
-                "jar:${projectDir.resolve("../src/apiComm.jar")}",
+                "jar:${projectDir.resolve("../build/generated/apiComm.jar")}",
 
                 "always-found:str:com/google/",
 
@@ -167,7 +167,7 @@ tasks {
     }
 
     val generate1710Java by creating(JavaExec::class) {
-        outputs.dir(file("../src/api1710"))
+        outputs.file(file("../build/generated/api1710.jar"))
         group = "application"
         classpath = sourceSets.main.get().runtimeClasspath
         main = application.mainClassName
@@ -175,7 +175,7 @@ tasks {
         dependsOn(downloadDependencies)
 
         args = listOf(
-                "jar:${projectDir.resolve("../src/api1710.jar")}",
+                "jar:${projectDir.resolve("../build/generated/api1710.jar")}",
 
                 "always-found:str:com/google/",
 
@@ -197,7 +197,7 @@ tasks {
     }
 
     val generate1122Java by creating(JavaExec::class) {
-        outputs.dir(file("../src/api1122"))
+        outputs.file(file("../build/generated/api1122.jar"))
         group = "application"
         classpath = sourceSets.main.get().runtimeClasspath
         main = application.mainClassName
@@ -205,7 +205,7 @@ tasks {
         dependsOn(downloadDependencies)
 
         args = listOf(
-                "jar:${projectDir.resolve("../src/api1122.jar")}",
+                "jar:${projectDir.resolve("../build/generated/api1122.jar")}",
 
                 "always-found:str:com/google/",
 
@@ -232,7 +232,7 @@ tasks {
 
     @Suppress("UNUSED_VARIABLE")
     val generateApiDts by creating(JavaExec::class) {
-        outputs.file(file("../src/generated/api.d.ts"))
+        outputs.file(file("../build/generated/api.d.ts"))
         inputs.dir(rootProject.sourceSets.getByName("mainComm").output.classesDirs.single())
         dependsOn(":mainCommClasses", ":dtsJdkClasses")
         group = "application"
@@ -240,7 +240,7 @@ tasks {
         main = application.mainClassName
 
         args = listOf(
-                "dts:${projectDir.resolve("../src/generated/api.d.ts")}",
+                "dts:${projectDir.resolve("../build/generated/api.d.ts")}",
 
                 "always:",
                 "only:str:com/anatawa12/mcWrapper/v1",

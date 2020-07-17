@@ -52,7 +52,7 @@ for (name in names) {
     val mainImplementation = configurations.getByName("main${name}Implementation")
 
     dependencies {
-        mainImplementation(files("src/api$name.jar"))
+        mainImplementation(files("build/generated/api$name.jar"))
         mainImplementation(apiComm.runtimeClasspath)
         if (name != "Comm") {
             mainImplementation(sourceSets.getByName("mainComm").runtimeClasspath)
@@ -85,6 +85,8 @@ tasks.jar {
         from(main.output.classesDirs)
         from(main.output.resourcesDir)
     }
+    dependsOn(":dts-generator:generateApiDts")
+    from("build/generated/api.d.ts")
     manifest {
         attributes("FMLAT" to "anatawa12_rtm_mc_wrapper_at.cfg")
     }
