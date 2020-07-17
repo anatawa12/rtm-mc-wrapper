@@ -98,17 +98,6 @@ tasks {
         downloadDependencyTask(downloaded)
     }
 
-    val minecraftConfigurations = listOf(
-            "only:str:net/minecraft/block/",
-            "only:str:net/minecraft/entity/",
-            "only:str:net/minecraft/item/",
-            "only:str:net/minecraft/nbt/",
-            "only:str:net/minecraft/tileentity/",
-            "only:str:net/minecraft/util/",
-            "only:str:net/minecraft/world/",
-            "exclude:str:net/minecraft/world/storage"
-    )
-
     val minecraftConfigurationsForJava = listOf(
             "need:str:net/minecraft/block/Block",
             "need:str:net/minecraft/world/World",
@@ -140,58 +129,6 @@ tasks {
 
             "exclude:str:net/minecraft/world/storage"
     )
-
-    @Suppress("UNUSED_VARIABLE")
-    val generateDts by creating(JavaExec::class) {
-        outputs.file(file("../minecraft.d.ts"))
-        group = "application"
-        classpath = sourceSets.main.get().runtimeClasspath
-        main = application.mainClassName
-
-        dependsOn(downloadDependencies)
-
-        args = listOf(
-                "dts:${projectDir.resolve("../minecraft.d.ts")}",
-
-                "only:str:org/ietf/jgss/",
-                "only:str:org/omg/",
-                "only:str:java/",
-                "only:str:javax/",
-                "jar:file:jvm-home:lib/rt.jar",
-
-                "always:",
-                "only:str:java/util/",
-                "only:str:java/lang/reflect/",
-                "jar:file:jvm-home:lib/rt.jar",
-
-                "always:",
-                "only:str:jp/ngt/ngtlib/io",
-                "comment:str:ngtlib 1.12.2",
-                "jar:file:str:$ngtlib1122",
-
-                "always:",
-                *minecraftConfigurations.toTypedArray(),
-                "comment:str:minecraft 1.12.2 with srg by forge",
-                "sig:str:net/minecraft/util/IObjectIntIterable!<V:Ljava/lang/Object;>Ljava/lang/Object;Ljava/lang/Iterable<TV;>;",
-                "srg:zip:file:str:$mcpSrg1122!joined.srg",
-                "mcp:zip:file:str:$mcpStable39!fields.csv",
-                "mcp:zip:file:str:$mcpStable39!methods.csv",
-                "jar:file:str:$minecraft1122ClientJar",
-
-                "always:",
-                *minecraftConfigurations.toTypedArray(),
-                "comment:str:minecraft 1.7.10 with srg by forge",
-                "srg:zip:file:str:$mcpSrg1710!joined.srg",
-                "mcp:zip:file:str:$mcpStable12!fields.csv",
-                "mcp:zip:file:str:$mcpStable12!methods.csv",
-                "jar:file:str:$minecraft1710ClientJar",
-
-                "jar:get:str:https://libraries.minecraft.net/com/google/guava/guava/21.0/guava-21.0.jar",
-
-                "exclude:str:com/google/gson/internal/",
-                "jar:get:str:https://libraries.minecraft.net/com/google/code/gson/gson/2.8.0/gson-2.8.0.jar"
-        )
-    }
 
     val generateCommJava by creating(JavaExec::class) {
         outputs.dir(file("../src/apiComm"))

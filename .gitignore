@@ -226,7 +226,6 @@ gradle-app.setting
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,gradle,windows,intellij,intellij+iml
 
-minecraft.d.ts
 src/api1122.jar
 src/api1710.jar
 src/apiComm.jar
