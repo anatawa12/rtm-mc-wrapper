@@ -109,6 +109,39 @@ tasks {
             "exclude:str:net/minecraft/world/storage"
     )
 
+    val minecraftConfigurationsForJava = listOf(
+            "need:str:net/minecraft/block/Block",
+            "need:str:net/minecraft/world/World",
+            "need:str:net/minecraft/tileentity/TileEntity",
+            "need:str:net/minecraft/entity/Entity",
+            "need:str:net/minecraft/entity/EntityList",
+            "need:str:net/minecraft/entity/NBTTagCompound",
+            "need:str:net/minecraft/nbt/NBTBase",
+            "need:str:net/minecraft/nbt/NBTTagCompound",
+            "need:str:net/minecraft/nbt/NBTTagString",
+            "need:str:net/minecraft/nbt/NBTTagList",
+            "need:str:net/minecraft/nbt/NBTTagByteArray",
+            "need:str:net/minecraft/nbt/NBTTagIntArray",
+            "need:str:net/minecraft/nbt/NBTTagByte",
+            "need:str:net/minecraft/nbt/NBTTagShort",
+            "need:str:net/minecraft/nbt/NBTTagInt",
+            "need:str:net/minecraft/nbt/NBTTagLong",
+            "need:str:net/minecraft/nbt/NBTTagFloat",
+            "need:str:net/minecraft/nbt/NBTTagDouble",
+            "need:str:net/minecraft/util/ResourceLocation",
+
+            "only:str:net/minecraft/block/",
+            "only:str:net/minecraft/entity/",
+            "only:str:net/minecraft/item/",
+            "only:str:net/minecraft/nbt/",
+            "only:str:net/minecraft/tileentity/",
+            "only:str:net/minecraft/util/",
+            "only:str:net/minecraft/world/",
+
+            "exclude:str:net/minecraft/world/storage"
+    )
+
+    @Suppress("UNUSED_VARIABLE")
     val generateDts by creating(JavaExec::class) {
         outputs.file(file("../minecraft.d.ts"))
         group = "application"
@@ -159,4 +192,124 @@ tasks {
                 "jar:get:str:https://libraries.minecraft.net/com/google/code/gson/gson/2.8.0/gson-2.8.0.jar"
         )
     }
+
+    val generateCommJava by creating(JavaExec::class) {
+        outputs.dir(file("../src/apiComm"))
+        group = "application"
+        classpath = sourceSets.main.get().runtimeClasspath
+        main = application.mainClassName
+
+        dependsOn(downloadDependencies)
+
+        args = listOf(
+                "jar:${projectDir.resolve("../src/apiComm.jar")}",
+
+                "always-found:str:com/google/",
+
+                "condition:or:not:if-srg:comment-disallow-either:minecraft 1.12.2 with srg by forge:minecraft 1.7.10 with srg by forge",
+
+                "need:str:jp/ngt/ngtlib/io/NGTLog",
+                "comment:str:ngtlib 1.12.2",
+                "jar:file:str:$ngtlib1122",
+
+                *minecraftConfigurationsForJava.toTypedArray(),
+                "comment:str:minecraft 1.7.10 with srg by forge",
+                "srg:zip:file:str:$mcpSrg1710!joined.srg",
+                "mcp:zip:file:str:$mcpStable12!fields.csv",
+                "mcp:zip:file:str:$mcpStable12!methods.csv",
+                "jar:file:str:$minecraft1710ClientJar",
+
+                *minecraftConfigurationsForJava.toTypedArray(),
+                "comment:str:minecraft 1.12.2 with srg by forge",
+                "sig:str:net/minecraft/util/IObjectIntIterable!<V:Ljava/lang/Object;>Ljava/lang/Object;Ljava/lang/Iterable<TV;>;",
+                "srg:zip:file:str:$mcpSrg1122!joined.srg",
+                "mcp:zip:file:str:$mcpStable39!fields.csv",
+                "mcp:zip:file:str:$mcpStable39!methods.csv",
+                "jar:file:str:$minecraft1122ClientJar"
+        )
+    }
+
+    val generate1710Java by creating(JavaExec::class) {
+        outputs.dir(file("../src/api1710"))
+        group = "application"
+        classpath = sourceSets.main.get().runtimeClasspath
+        main = application.mainClassName
+
+        dependsOn(downloadDependencies)
+
+        args = listOf(
+                "jar:${projectDir.resolve("../src/api1710.jar")}",
+
+                "always-found:str:com/google/",
+
+                "need:str:jp/ngt/ngtlib/io/NGTLog",
+                "comment:str:ngtlib 1.12.2",
+                "jar:file:str:$ngtlib1122",
+
+                *minecraftConfigurationsForJava.toTypedArray(),
+                "comment:str:minecraft 1.7.10 with srg by forge",
+                "sig:str:net/minecraft/tileentity/TileEntity:field_145853_j!Ljava/util/Map<Ljava/lang/Class<*>;Ljava/lang/String;>;",
+                "srg:zip:file:str:$mcpSrg1710!joined.srg",
+                "mcp:zip:file:str:$mcpStable12!fields.csv",
+                "mcp:zip:file:str:$mcpStable12!methods.csv",
+                "exclude:str:net/minecraft/util/ChunkCoordinates",
+                "exclude:str:net/minecraft/util/IChatComponent\$Serializer",
+                "exclude:str:net/minecraft/util/ChatStyle\$Serializer",
+                "jar:file:str:$minecraft1710ClientJar"
+        )
+    }
+
+    val generate1122Java by creating(JavaExec::class) {
+        outputs.dir(file("../src/api1122"))
+        group = "application"
+        classpath = sourceSets.main.get().runtimeClasspath
+        main = application.mainClassName
+
+        dependsOn(downloadDependencies)
+
+        args = listOf(
+                "jar:${projectDir.resolve("../src/api1122.jar")}",
+
+                "always-found:str:com/google/",
+
+                "need:str:jp/ngt/ngtlib/io/NGTLog",
+                "jar:file:str:$ngtlib1122",
+
+                *minecraftConfigurationsForJava.toTypedArray(),
+                "comment:str:minecraft 1.12.2 with srg by forge",
+                "sig:str:net/minecraft/util/IObjectIntIterable!<V:Ljava/lang/Object;>Ljava/lang/Object;Ljava/lang/Iterable<TV;>;",
+                "srg:zip:file:str:$mcpSrg1122!joined.srg",
+                "mcp:zip:file:str:$mcpStable39!fields.csv",
+                "mcp:zip:file:str:$mcpStable39!methods.csv",
+                "jar:file:str:$minecraft1122ClientJar"
+        )
+    }
+
+    @Suppress("UNUSED_VARIABLE")
+    val generateJavas by creating {
+        group = "application"
+        dependsOn(generateCommJava)
+        dependsOn(generate1710Java)
+        dependsOn(generate1122Java)
+    }
+
+/*
+    val generateApiDts by creating(JavaExec::class) {
+        outputs.file(file("../api.d.ts"))
+        group = "application"
+        classpath = sourceSets.main.get().runtimeClasspath
+        main = application.mainClassName
+
+        args = listOf(
+                "dts:${projectDir.resolve("../api.d.ts")}",
+
+                "only:str:java/",
+                "jar:file:jvm-home:lib/rt.jar",
+
+                "always:",
+                "only:str:com/anatawa12/mcWrapper/v1",
+                "classes:str:${rootProject.sourceSets.getByName("mainComm").output.classesDirs.single()}"
+        )
+    }
+// */
 }
