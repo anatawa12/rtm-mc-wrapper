@@ -230,23 +230,35 @@ tasks {
         dependsOn(generate1122Java)
     }
 
-/*
+    @Suppress("UNUSED_VARIABLE")
     val generateApiDts by creating(JavaExec::class) {
-        outputs.file(file("../api.d.ts"))
+        outputs.file(file("../src/generated/api.d.ts"))
+        inputs.dir(rootProject.sourceSets.getByName("mainComm").output.classesDirs.single())
+        dependsOn(":mainCommClasses", ":dtsJdkClasses")
         group = "application"
         classpath = sourceSets.main.get().runtimeClasspath
         main = application.mainClassName
 
         args = listOf(
-                "dts:${projectDir.resolve("../api.d.ts")}",
-
-                "only:str:java/",
-                "jar:file:jvm-home:lib/rt.jar",
+                "dts:${projectDir.resolve("../src/generated/api.d.ts")}",
 
                 "always:",
                 "only:str:com/anatawa12/mcWrapper/v1",
+                "exclude:str:com/anatawa12/mcWrapper/v1/_InternalAccessor",
+                "sig:str:com/anatawa12/mcWrapper/v1/WNBTBase!Ljava/lang/Object;",
+                "sig:str:com/anatawa12/mcWrapper/v1/WNBTByte!Lcom/anatawa12/mcWrapper/v1/WNBTBase;",
+                "sig:str:com/anatawa12/mcWrapper/v1/WNBTByteArray!Lcom/anatawa12/mcWrapper/v1/WNBTBase;",
+                "sig:str:com/anatawa12/mcWrapper/v1/WNBTCompound!Lcom/anatawa12/mcWrapper/v1/WNBTBase;",
+                "sig:str:com/anatawa12/mcWrapper/v1/WNBTDouble!Lcom/anatawa12/mcWrapper/v1/WNBTBase;",
+                "sig:str:com/anatawa12/mcWrapper/v1/WNBTFloat!Lcom/anatawa12/mcWrapper/v1/WNBTBase;",
+                "sig:str:com/anatawa12/mcWrapper/v1/WNBTInt!Lcom/anatawa12/mcWrapper/v1/WNBTBase;",
+                "sig:str:com/anatawa12/mcWrapper/v1/WNBTIntArray!Lcom/anatawa12/mcWrapper/v1/WNBTBase;",
+                "sig:str:com/anatawa12/mcWrapper/v1/WNBTList!Lcom/anatawa12/mcWrapper/v1/WNBTBase;",
+                "sig:str:com/anatawa12/mcWrapper/v1/WNBTLong!Lcom/anatawa12/mcWrapper/v1/WNBTBase;",
+                "sig:str:com/anatawa12/mcWrapper/v1/WNBTPrimitive!Lcom/anatawa12/mcWrapper/v1/WNBTBase;",
+                "sig:str:com/anatawa12/mcWrapper/v1/WNBTShort!Lcom/anatawa12/mcWrapper/v1/WNBTBase;",
+                "sig:str:com/anatawa12/mcWrapper/v1/WNBTString!Lcom/anatawa12/mcWrapper/v1/WNBTBase;",
                 "classes:str:${rootProject.sourceSets.getByName("mainComm").output.classesDirs.single()}"
         )
     }
-// */
 }
