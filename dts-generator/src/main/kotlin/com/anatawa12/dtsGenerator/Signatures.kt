@@ -37,7 +37,7 @@ class SigReader private constructor(){
 
     private fun classTypeSignature(signature: String): ClassTypeSignature {
         check(signature[i++] == 'L') { fail(signature, "expected class type signature", -1) }
-        val typeArgs = mutableListOf<ReferenceTypeSignature?>()
+        val typeArgs = mutableListOf<TypeArgument>()
         val typeName = buildString {
             while (true) {
                 append(identifier(signature))
@@ -52,11 +52,12 @@ class SigReader private constructor(){
                     i++ // skip '<'
                     while (signature[i] != '>') {
                         typeArgs += when (signature[i++]) {
-                            '*' -> null
-                            '+', '-' -> referenceTypeSignature(signature)
+                            '*' -> TypeArgument(null, null)
+                            '+' -> TypeArgument(referenceTypeSignature(signature), Indicator.Plus)
+                            '-' -> TypeArgument(referenceTypeSignature(signature), Indicator.Minus)
                             else -> {
                                 i--
-                                referenceTypeSignature(signature)
+                                TypeArgument(referenceTypeSignature(signature), null)
                             }
                         }
                     }
@@ -151,8 +152,21 @@ class SigReader private constructor(){
 }
 
 
-sealed class JavaTypeSignature
+sealed class JavaTypeSignature {
+    open fun nonGeneric(params: List<TypeParam>) = this
+}
 class BaseType private constructor(val type: BaseType.Kind) : JavaTypeSignature() {
+    override fun toString() = when (type) {
+        Kind.Byte -> "B"
+        Kind.Char -> "C"
+        Kind.Double -> "D"
+        Kind.Float -> "F"
+        Kind.Int -> "I"
+        Kind.Long -> "J"
+        Kind.Short -> "S"
+        Kind.Boolean -> "Z"
+    }
+
     enum class Kind {
         Byte, Char, Double, Float, Int, Long, Short, Boolean,
         ;
@@ -161,11 +175,73 @@ class BaseType private constructor(val type: BaseType.Kind) : JavaTypeSignature(
 }
 
 sealed class ReferenceTypeSignature : JavaTypeSignature()
-class ClassTypeSignature(val name: String, val args: List<ReferenceTypeSignature?>) : ReferenceTypeSignature()
-class TypeVariable(val name: String) : ReferenceTypeSignature()
-class ArrayTypeSignature(val element: JavaTypeSignature) : ReferenceTypeSignature()
+class TypeArgument(val type: ReferenceTypeSignature?, val indicator: Indicator?) {
+    override fun toString() = when (indicator) {
+        Indicator.Plus -> "+$type"
+        Indicator.Minus -> "-$type"
+        null ->
+            if (type == null) "*"
+            else "$type"
+    }
+}
 
-class ClassSignature(val params: List<TypeParam>, val superClass: ClassTypeSignature, val superInterfaces: List<ClassTypeSignature>)
-class MethodSignature(val typeParams: List<TypeParam>, val params: MutableList<JavaTypeSignature>, val result: JavaTypeSignature?)
+enum class Indicator {
+    Plus, 
+    Minus,
+}
+class ClassTypeSignature(val name: String, val args: List<TypeArgument>) : ReferenceTypeSignature() {
+    override fun nonGeneric(params: List<TypeParam>): JavaTypeSignature = ClassTypeSignature(name, emptyList())
 
-class TypeParam(val name: String, val superTypes: List<ReferenceTypeSignature>)
+    override fun toString(): String = buildString {
+        append('L').append(name)
+        if (args.isNotEmpty())
+            args.joinTo(this, "", "<", ">")
+        append(';')
+    }
+}
+class TypeVariable(val name: String) : ReferenceTypeSignature() {
+    override fun nonGeneric(params: List<TypeParam>): JavaTypeSignature
+            = params.last { it.name == name }.superTypes.first().nonGeneric(params)
+
+    override fun toString(): String = "T$name;"
+}
+class ArrayTypeSignature(val element: JavaTypeSignature) : ReferenceTypeSignature() {
+    override fun nonGeneric(params: List<TypeParam>): JavaTypeSignature = ArrayTypeSignature(element.nonGeneric(params))
+    override fun toString(): String = "[$element"
+}
+
+class ClassSignature(val params: List<TypeParam>, val superClass: ClassTypeSignature, val superInterfaces: List<ClassTypeSignature>) {
+    override fun toString(): String = buildString {
+        if (params.isNotEmpty()) 
+            params.joinTo(this, "", "<", ">")
+        append(superClass)
+        superInterfaces.joinTo(this, "")
+    }
+}
+
+data class MethodSignature(val typeParams: List<TypeParam>, val params: List<JavaTypeSignature>, val result: JavaTypeSignature?) {
+    override fun toString(): String = buildString {
+        if (typeParams.isNotEmpty())
+            typeParams.joinTo(this, "", "<", ">")
+        params.joinTo(this, "", "(", ")")
+        if (result == null) append('V')
+        else append(result)
+    }
+
+    fun nonGeneric(typeParams: List<TypeParam>): MethodSignature {
+        val allTypeParams = when {
+            this.typeParams.isEmpty() -> typeParams
+            typeParams.isEmpty() -> this.typeParams
+            else -> this.typeParams + typeParams
+        }
+        return MethodSignature(emptyList(), 
+                params.map { it.nonGeneric(allTypeParams) }, 
+                result?.nonGeneric(allTypeParams))
+    }
+}
+
+class TypeParam(val name: String, val superTypes: List<ReferenceTypeSignature>) {
+    override fun toString(): String {
+        return name + superTypes.joinToString("") { ":$it" }
+    }
+}

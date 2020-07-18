@@ -9,6 +9,7 @@ import org.objectweb.asm.commons.Remapper
 import java.io.File
 import java.io.InputStream
 import java.lang.Exception
+import java.lang.reflect.Modifier
 import java.net.URL
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
@@ -37,10 +38,23 @@ class EndProcessArgs(val classes: ClassesManager) {
     val mcpMap = mutableMapOf<String, String>()
 }
 
+class GenProcessArgs(val classes: ClassesManager) {
+    val alwaysFound: MutableList<String> = mutableListOf()
+    val alwaysExclude: MutableList<String> = mutableListOf()
+    val elementConditions: MutableList<(TheElement) -> Boolean> = mutableListOf()
+    val methodConditions: MutableList<(TheSingleMethod) -> Boolean> = mutableListOf()
+    val rootPackage get() = classes.rootPackage
+    var header: String? = null
+    var useObjectForUnknown: Boolean = false
+    fun testElement(elem: TheElement) = elementConditions.all { it(elem) }
+    fun testElement(elem: TheSingleMethod) = methodConditions.all { it(elem) }
+}
+
 fun main(args: Array<String>) {
     val outputFile = args.first()
 
     val classes = ClassesManager()
+    val genProcess = GenProcessArgs(classes)
     var endProcessArgs = EndProcessArgs(classes)
 
     val srgCache = mutableMapOf<String, SrgManager>()
@@ -78,11 +92,31 @@ fun main(args: Array<String>) {
             EndProcessType.Only -> {
                 endProcessArgs.only += input.reader().readText()
             }
+            EndProcessType.Header -> {
+                genProcess.header = input.reader().readText()
+            }
+            EndProcessType.AlwaysFound -> {
+                genProcess.alwaysFound += input.reader().readText()
+            }
+            EndProcessType.AlwaysExclude -> {
+                genProcess.alwaysExclude += input.reader().readText()
+            }
+            EndProcessType.UseObjectForUnknown -> {
+                genProcess.useObjectForUnknown = true
+            }
+            EndProcessType.Condition -> {
+                val (element, method) = parseCondition(input.reader().readText())
+                genProcess.elementConditions += element
+                genProcess.methodConditions += method
+            }
             EndProcessType.Exclude -> {
                 endProcessArgs.exclude += input.reader().readText()
             }
             EndProcessType.Always -> {
                 endProcessArgs.always = true
+            }
+            EndProcessType.Need -> {
+                classes.getClass(input.reader().readText()).need = true
             }
             EndProcessType.Sig -> {
                 val (k, v) = input.reader().readText().split('!', limit = 2)
@@ -100,23 +134,139 @@ fun main(args: Array<String>) {
     }
 
     println("checking needs")
-    NeedsChecker.checkNeeds(classes)
+    NeedsChecker.checkNeeds(genProcess, classes)
+    println("removing empty packages")
+    EmptyPackageRemover.removeEmptyPackage(genProcess, classes)
 
     val (tag, fileName) = outputFile.split(':', limit = 2)
     when (tag) {
         "dts" -> {
-            TsGen.generate(classes).apply {
+            TsGen.generate(genProcess).apply {
                 File(fileName).writeText(this)
             }
-        } 
+        }
+        "jar" -> {
+            JarGen.generate(genProcess, File(fileName))
+        }
+        "included-dts" -> {
+            val (outFile, include) = fileName.split('!')
+            IncludedDTsGen.generate(include, genProcess).apply { 
+                File(outFile).apply { parentFile.mkdirs() }.writeText(this)
+            }
+        }
         else -> error("$tag is not valid export type")
+    }
+}
+
+fun parseCondition(text: String): Pair<(TheElement) -> Boolean, (TheSingleMethod) -> Boolean> {
+    val parts = text.split(':')
+    val (pair, index) = parseConditionMain(parts, 0)
+    if (index != parts.size)
+        throw IllegalArgumentException("condition text contain too many ':'")
+    return pair
+}
+
+fun parseConditionMain(parts: List<String>, index: Int): Pair<Pair<(TheElement) -> Boolean, (TheSingleMethod) -> Boolean>, Int> {
+    when (parts[index]) {
+        "comment-disallow-either" -> {
+            val a = parts[index + 1]
+            val b = parts[index + 2]
+            fun testComment(comments: List<String>): Boolean {
+                var foundA = false
+                var foundB = false
+                for (comment in comments) {
+                    if (a in comment) foundA = true
+                    if (b in comment) foundB = true
+                    if (foundA && foundB) return true
+                }
+                return !(foundA xor foundB)
+            }
+            return { e: TheElement ->
+                when (e) {
+                    TheDuplicated -> true
+                    is ThePackage -> true
+                    is TheMethods -> true
+                    is TheClass -> testComment(e.comments)
+                    is TheField -> testComment(e.comments)
+                }
+            } to { method: TheSingleMethod ->
+                testComment(method.comments)
+            } to index + 3
+        }
+        "if-srg" -> {
+            return { e: TheElement ->
+                when (e) {
+                    TheDuplicated -> true
+                    is ThePackage -> true
+                    is TheClass -> true
+                    is TheMethods -> e.name.startsWith("func_")
+                    is TheField -> e.name.startsWith("field_")
+                }
+            } to { method: TheSingleMethod ->
+                method.name.startsWith("func_")
+            } to index + 1
+        }
+        "not" -> {
+            val (condition1, index1) = parseConditionMain(parts, index + 1)
+            val (element1, method1) = condition1
+            return { e: TheElement ->
+                !element1(e)
+            } to { method: TheSingleMethod ->
+                !method1(method)
+            } to index1
+        }
+        "and" -> {
+            val (condition1, index1) = parseConditionMain(parts, index + 1)
+            val (condition2, index2) = parseConditionMain(parts, index1)
+            val (element1, method1) = condition1
+            val (element2, method2) = condition2
+            return  { e: TheElement ->
+                element1(e) && element2(e)
+            } to { method: TheSingleMethod ->
+                method1(method) && method2(method)
+            } to index2
+        }
+        "or" -> {
+            val (condition1, index1) = parseConditionMain(parts, index + 1)
+            val (condition2, index2) = parseConditionMain(parts, index1)
+            val (element1, method1) = condition1
+            val (element2, method2) = condition2
+            return  { e: TheElement ->
+                element1(e) || element2(e)
+            } to { method: TheSingleMethod ->
+                method1(method) || method2(method)
+            } to index2
+        }
+        "xor" -> {
+            val (condition1, index1) = parseConditionMain(parts, index + 1)
+            val (condition2, index2) = parseConditionMain(parts, index1)
+            val (element1, method1) = condition1
+            val (element2, method2) = condition2
+            return  { e: TheElement ->
+                element1(e) xor element2(e)
+            } to { method: TheSingleMethod ->
+                method1(method) xor method2(method)
+            } to index2
+        }
+        "xnor" -> {
+            val (condition1, index1) = parseConditionMain(parts, index + 1)
+            val (condition2, index2) = parseConditionMain(parts, index1)
+            val (element1, method1) = condition1
+            val (element2, method2) = condition2
+            return  { e: TheElement ->
+                !(element1(e) xor element2(e))
+            } to { method: TheSingleMethod ->
+                !(method1(method) xor method2(method))
+            } to index2
+        }
+        else -> error("invalid: ${parts[0]}")
     }
 }
 
 object NeedsChecker {
     private fun <T> MutableIterable<T>.removeFirst() = iterator().run { next().also { remove() } }
 
-    fun checkNeeds(classes: ClassesManager) {
+    fun checkNeeds(args: GenProcessArgs, classes: ClassesManager) {
         val willCheck = getAllNeeds(classes)
         val _checked = mutableSetOf<TheClass>()
         val checked = _checked as Set<TheClass>
@@ -142,12 +292,13 @@ object NeedsChecker {
                 addTypeParms(willCheck, checked, classes, signature.params)
             }
 
-            for (element in theClass.children.values) {
+            children@for (element in theClass.children.values) {
                 when (element) {
                     is ThePackage -> error("package is not allowed for child of ckass")
                     is TheClass -> willCheck += element
                     is TheMethods -> {
                         for (method in element.singles.values) {
+                            if (!GenUtil.canVisitMethod(args, theClass, method)) continue@children
                             addTypeParms(willCheck, checked, classes, method.signature.typeParams)
                             for (param in method.signature.params) {
                                 addType(willCheck, checked, classes, param)
@@ -156,6 +307,7 @@ object NeedsChecker {
                         }
                     }
                     is TheField -> {
+                        if (!GenUtil.canVisitField(args, theClass, element)) continue@children
                         addType(willCheck, checked, classes, element.signature)
                     }
                 }
@@ -180,7 +332,7 @@ object NeedsChecker {
                 is ClassTypeSignature -> {
                     add(willCheck, checked, classes.getClass(t.name))
                     for (arg in t.args) {
-                        if (arg != null) willSearchs += arg
+                        if (arg.type != null) willSearchs += arg.type
                     }
                 }
                 is TypeVariable -> { /* nop */ }
@@ -269,8 +421,14 @@ fun readArg(arg: String): Triple<EndProcessType, List<InputGetterProcess>, Strin
             "classes" -> endProcess = EndProcessType.Classes
             "comment" -> endProcess = EndProcessType.Comment
             "only" -> endProcess = EndProcessType.Only
+            "header" -> endProcess = EndProcessType.Header
+            "always-found" -> endProcess = EndProcessType.AlwaysFound
+            "always-exclude" -> endProcess = EndProcessType.AlwaysExclude
+            "use-object-for-unknown" -> return Triple(EndProcessType.UseObjectForUnknown, emptyList(), "")
+            "condition" -> return Triple(EndProcessType.Condition, emptyList(), path)
             "exclude" -> endProcess = EndProcessType.Exclude
             "always" -> return Triple(EndProcessType.Always, emptyList(), "")
+            "need" -> endProcess = EndProcessType.Need
             "sig" -> endProcess = EndProcessType.Sig
             "mcp" -> endProcess = EndProcessType.Mcp
             else -> error("invalid end process type: $tag")
@@ -323,7 +481,21 @@ fun readArg(arg: String): Triple<EndProcessType, List<InputGetterProcess>, Strin
 }
 
 enum class EndProcessType {
-    Srg, Jar, Classes, Comment, Only, Exclude, Always, Sig, Mcp 
+    Srg,
+    Jar,
+    Classes,
+    Comment,
+    Only,
+    Header,
+    AlwaysFound,
+    AlwaysExclude,
+    UseObjectForUnknown,
+    Condition,
+    Exclude,
+    Always,
+    Need,
+    Sig,
+    Mcp,
 }
 
 interface InputGetterProcess {
@@ -440,7 +612,7 @@ fun readClassFile(stream: InputStream, args: EndProcessArgs) {
                 theClass.accessExternally = access
             theClass.superClass = superName
             theClass.interfaces = interfaces.orEmpty()
-            val signature = signature ?: args.signatures[name]
+            val signature = args.signatures[name] ?: signature
             if (signature != null) 
                 theClass.signature = SigReader.current.classSignature(signature, name)
             if (args.comment != null) theClass.comments.add(args.comment!!)
@@ -448,18 +620,40 @@ fun readClassFile(stream: InputStream, args: EndProcessArgs) {
         }
 
         override fun visitMethod(access: Int, name: String, desc: String, signature: String?, exceptions: Array<out String>?): MethodVisitor? {
-            if (access.and(Opcodes.ACC_PUBLIC) == 0) return null
+            if (access.and(Opcodes.ACC_SYNTHETIC) != 0) return null
             theClass.getMethod(name, desc)?.also {
-                if (signature != null) 
-                    it.signature = SigReader.current.methodDesc(signature, "${this.name}/$name$desc")
-                addComment(it.comments, args, name)
-                it.access = access
+                val signature = args.signatures["${this.name}:$name$desc"] ?: signature
+                if (it.access != -1) {
+                    it.access = mergeAccess(it.access, access)
+                    //exits
+                    addComment(it.comments, args, name, buildString {
+                        if (signature != null) {
+                            appendln("signature: $signature")
+                        }
+                        append("access: ${access.toString(16).padStart(4, '0')}")
+                    })
+                } else {
+                    if (signature != null)
+                        it.signature = SigReader.current.methodDesc(signature, "${this.name}/$name$desc")
+                    addComment(it.comments, args, name)
+                    it.access = access
+                }
             }
             return null
         }
 
+        private fun mergeAccess(access: Int, access1: Int): Int {
+            var result = access
+            if (Modifier.isAbstract(access) xor Modifier.isAbstract(access1))
+                result = result and Opcodes.ACC_ABSTRACT.inv()
+            if (Modifier.isFinal(access) xor Modifier.isFinal(access1))
+                result = result and Opcodes.ACC_FINAL.inv()
+            return result
+        }
+
         override fun visitField(access: Int, name: String, desc: String, signature: String?, value: Any?): FieldVisitor? {
-            if (access.and(Opcodes.ACC_PUBLIC) == 0) return null
+            if (access.and(Opcodes.ACC_SYNTHETIC) != 0) return null
+            val signature = args.signatures["${this.name}:$name"]  ?: signature
             theClass.getField(name, desc)?.also {
                 if (signature != null) 
                     it.signature = SigReader.current.fieldDesc(signature, "${this.name}/$name:$desc")
@@ -469,17 +663,22 @@ fun readClassFile(stream: InputStream, args: EndProcessArgs) {
             return null
         }
 
-        private fun addComment(comments: MutableList<String>, args: EndProcessArgs, name: String) {
+        private fun addComment(comments: MutableList<String>, args: EndProcessArgs, name: String, sigInfo: String? = null) {
             val mcp = args.mcpMap[name]
             val comment = args.comment
             if (mcp == null && comment == null) return
+            var commentReal: String
             if (mcp == null) {
-                comments += "$comment"
+                commentReal = "$comment"
             } else if (comment == null) {
-                comments += "mcp: $mcp"
+                commentReal = "mcp: $mcp"
             } else {
-                comments += "$comment\nmcp: $mcp"
+                commentReal = "$comment\nmcp: $mcp"
             }
+            if (sigInfo != null) {
+                commentReal += "\nsiginfo:\n${sigInfo.lineSequence().map { "  $it" }.joinToString("\n")}"
+            }
+            comments += commentReal
         }
 
         override fun visitInnerClass(name: String, outerName: String?, innerName: String?, access: Int) {

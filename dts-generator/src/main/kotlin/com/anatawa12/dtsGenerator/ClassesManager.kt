@@ -2,14 +2,15 @@ package com.anatawa12.dtsGenerator
 
 
 class ClassesManager {
-    val rootPackage = ThePackage(".")
+    val rootPackage = ThePackage(".", this)
+    var srgDuplicated = mutableSetOf<String>()
 
     fun getPackage(packageElement: List<String>): ThePackage {
         var pkg = rootPackage
         var name = ""
         for (pkgName in packageElement) {
             name += "." + pkgName
-            val thisPkg = pkg.children.computeIfAbsent(pkgName) { ThePackage(name) }
+            val thisPkg = pkg.children.computeIfAbsent(pkgName) { ThePackage(name, this) }
             if (thisPkg !is ThePackage)
                 throw IllegalArgumentException("name duplicated with package and class: $name")
             pkg = thisPkg
@@ -28,14 +29,14 @@ class ClassesManager {
         val classNameElement1 = classNameElements.first()
         printName += ".${classNameElement1}"
         var cls = pkg.children[classNameElement1]
-                .let { it ?: TheClass(printName).apply { pkg.children[classNameElement1] = this } }
+                .let { it ?: TheClass(printName, this).apply { pkg.children[classNameElement1] = this } }
                 .let { it as? TheClass }
                 ?: throw IllegalArgumentException("name duplicated with package and class: $printName")
 
         for (classNameElement in classNameElements.asSequence().drop(1)) {
             printName += "$${classNameElement}"
             cls = cls.children[classNameElement]
-                    .let { it ?: TheClass(printName).apply { outerClass = cls }.apply { cls.children[classNameElement] = this } }
+                    .let { it ?: TheClass(printName, this).apply { outerClass = cls }.apply { cls.children[classNameElement] = this } }
                     .let { it as? TheClass }
                     ?: throw IllegalArgumentException("name duplicated with package and class: $printName")
         }
@@ -55,13 +56,14 @@ sealed class TheElement(val type: TheElementType)
 
 object TheDuplicated : TheElement(TheElementType.Duplicated)
 
-data class ThePackage(val name: String) : TheElement(TheElementType.Package) {
+data class ThePackage(val name: String, val manager: ClassesManager) : TheElement(TheElementType.Package) {
     val children = mutableMapOf<String, TheElement>()
     val tsItfName by lazy { "p${name.replace('.', '_')}" }
 }
-data class TheClass(val name: String) : TheElement(TheElementType.Class) {
+data class TheClass(val name: String, val manager: ClassesManager) : TheElement(TheElementType.Class) {
     var need = false
     var gotClass = false
+    var detectStatic = false
     var outerClass: TheClass? = null
     /** internal name */
     var superClass: String? = null
@@ -88,7 +90,14 @@ data class TheClass(val name: String) : TheElement(TheElementType.Class) {
             children[name] = TheDuplicated
             return null // return dummy
         }
-        return methods.singles.computeIfAbsent(desc) { TheSingleMethod(name, desc) }
+        val method = methods.singles.computeIfAbsent(desc.substringBefore(')')) { TheSingleMethod(name, desc) }
+        if (method.desc != desc) {
+            if (name.startsWith("func_")) manager.srgDuplicated.add(name)
+            println("duplicate method in class ${this.name} with same name: $name: $desc: $method")
+            children[name] = TheDuplicated
+            return null // return dummy
+        }
+        return method
     }
 
     fun getField(name: String, desc: String): TheField? {
@@ -100,6 +109,7 @@ data class TheClass(val name: String) : TheElement(TheElementType.Class) {
             return null // return dummy
         }
         if (field.desc != desc) {
+            if (name.startsWith("field_")) manager.srgDuplicated.add(name)
             println("duplicate field in class ${this.name} with same nameing: $name: $desc: $field")
             children[name] = TheDuplicated
             return null // return dummy
@@ -109,12 +119,17 @@ data class TheClass(val name: String) : TheElement(TheElementType.Class) {
 }
 
 data class TheMethods(val name: String) : TheElement(TheElementType.Method) {
-    /** desc -> single */
+    /** argument desc -> single */
     val singles = mutableMapOf<String, TheSingleMethod>()
 }
 data class TheSingleMethod(val name: String, val desc: String) {
     val comments = mutableListOf<String>()
+    var isDesc = true
     var signature = SigReader.current.methodDesc(desc, "$name$desc")
+        set(value) {
+            field = value
+            isDesc = false
+        }
     var access: Int = -1
     val accessChecked: Int get() = access.takeUnless { it == -1 } ?: error("access for $name not set")
 }
