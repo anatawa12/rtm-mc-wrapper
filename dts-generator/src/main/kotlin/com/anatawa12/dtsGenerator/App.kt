@@ -123,6 +123,8 @@ fun main(args: Array<String>) {
 
     println("checking needs")
     NeedsChecker.checkNeeds(genProcess, classes)
+    println("removing empty packages")
+    EmptyPackageRemover.removeEmptyPackage(genProcess, classes)
 
     val (tag, fileName) = outputFile.split(':', limit = 2)
     when (tag) {
