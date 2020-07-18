@@ -1,5 +1,7 @@
 package com.anatawa12.mcWrapper.v2;
 
+import com.anatawa12.mcWrapper.internal.utils.JSUtil;
+
 public final class Init {
     public static void init(EvalFunction eval) {
         if (inited) return;
@@ -15,7 +17,7 @@ public final class Init {
 
     private static final String javaScript = "" +
             "(function () {\n" +
-            "    var JSUtil = Packages.com.anatawa12.mcWrapper.utils.JSUtil\n" +
+            "    var JSUtil = Packages." + JSUtil.class.getName() + "\n" +
             "    JSUtil.setIsArray(function(array) { return Array.isArray(array); });\n" +
             "    JSUtil.setArrayGetter(function(array, index) { return array[index]; });\n" +
             "    JSUtil.setArraySetter(function(array, index, value) { array[index] = value; });\n" +
