@@ -91,7 +91,7 @@ tasks.jar {
             expand("version_name" to project.version)
         }
     }
-    dependsOn(":dts-generator:generateApiDts", ":dts-generator:generateApiDts")
+    dependsOn(":dts-generator:generateApiDts", ":dts-generator:generateIncludedV2Dts")
     from("build/generated/api.d.ts")
     from("build/generated/api.included.v2.d.ts")
     manifest {
