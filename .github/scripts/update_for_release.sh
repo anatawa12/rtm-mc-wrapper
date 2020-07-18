@@ -75,10 +75,12 @@ rm "$tmp_file"
 
 # コミット
 
-git commit -am "$version_name"
-echo git push
+if [ "$prerelease" != "true" ]; then
+  git commit -am "$version_name"
+fi
 git tag "$version_name"
-echo git push origin "$version_name"
+git push
+git push origin "$version_name"
 
 # 出力設定
 
