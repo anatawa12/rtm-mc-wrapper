@@ -251,6 +251,8 @@ tasks {
                 "dts:${projectDir.resolve("../build/generated/api.d.ts")}",
 
                 headerConfiguration,
+                "use-object-for-unknown:",
+                "always-exclude:str:com/anatawa12/mcWrapper/internal/",
 
                 "always:",
                 "only:str:com/anatawa12/mcWrapper/v2",
