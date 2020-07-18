@@ -14,6 +14,8 @@ plugins {
     java
 }
 
+version = project.property("rtmMcWrapperVersion").toString()
+
 repositories {
     jcenter()
     maven(url="https://libraries.minecraft.net/")
