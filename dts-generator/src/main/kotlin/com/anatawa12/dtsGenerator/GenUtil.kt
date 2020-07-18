@@ -11,6 +11,14 @@ object GenUtil {
         return theClass.gotClass && theClass.accessExternally.and(Opcodes.ACC_PUBLIC) != 0
     }
 
+    fun elementFilter(element: TheElement): Boolean = when (element) {
+        is TheDuplicated -> false
+        is ThePackage -> true
+        is TheClass -> element.gotClass && element.need && element.accessExternallyChecked.and(Opcodes.ACC_PUBLIC) != 0
+        is TheMethods -> true
+        is TheField -> true
+    }
+
     fun canPoet(args: GenProcessArgs, type: JavaTypeSignature): Boolean = when (type) {
         is BaseType -> true
         is TypeVariable -> true

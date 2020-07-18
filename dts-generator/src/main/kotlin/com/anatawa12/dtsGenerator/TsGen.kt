@@ -36,7 +36,7 @@ object TsGen {
 
     private fun generateClassesInPackage(args: GenProcessArgs, packageFQN: String, thePackage: ThePackage, builder: SrcBuilder): SrcBuilder = builder.apply {
         val children = thePackage.children.entries
-                .filter { elementFilter(it.value) }
+                .filter { GenUtil.elementFilter(it.value) }
                 .sortedWith(compareBy<Map.Entry<String, TheElement>> { it.value.type }
                         .thenBy { it.key })
 
@@ -67,14 +67,6 @@ object TsGen {
         }
         outdent()
         appendln("}")
-    }
-
-    private fun elementFilter(element: TheElement): Boolean = when (element) {
-        is TheDuplicated -> false
-        is ThePackage -> true
-        is TheClass -> element.gotClass && element.need && element.accessExternallyChecked.and(Opcodes.ACC_PUBLIC) != 0
-        is TheMethods -> true
-        is TheField -> true
     }
 
     private fun generateClass(args: GenProcessArgs, theClass: TheClass, builder: SrcBuilder) = builder.apply {

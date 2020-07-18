@@ -15,17 +15,9 @@ object JarGen {
         }
     }
 
-    private fun elementFilter(element: TheElement): Boolean = when (element) {
-        is TheDuplicated -> false
-        is ThePackage -> true
-        is TheClass -> element.gotClass && element.need && element.accessExternallyChecked.and(Opcodes.ACC_PUBLIC) != 0
-        is TheMethods -> true
-        is TheField -> true
-    }
-
     private fun generatePackage(args: GenProcessArgs, thePackage: ThePackage, zos: ZipOutputStream) {
         val children = thePackage.children.entries
-                .filter { elementFilter(it.value) }
+                .filter { GenUtil.elementFilter(it.value) }
                 .sortedWith(compareBy<Map.Entry<String, TheElement>> { it.value.type }
                         .thenBy { it.key })
         
