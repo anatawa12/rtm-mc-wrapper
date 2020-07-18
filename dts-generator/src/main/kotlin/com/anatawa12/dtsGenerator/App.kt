@@ -136,6 +136,12 @@ fun main(args: Array<String>) {
         "jar" -> {
             JarGen.generate(genProcess, File(fileName))
         }
+        "included-dts" -> {
+            val (outFile, include) = fileName.split('!')
+            IncludedDTsGen.generate(include, genProcess).apply { 
+                File(outFile).apply { parentFile.mkdirs() }.writeText(this)
+            }
+        }
         else -> error("$tag is not valid export type")
     }
 }
