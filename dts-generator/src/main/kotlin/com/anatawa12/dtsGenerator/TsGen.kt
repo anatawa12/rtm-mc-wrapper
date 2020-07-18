@@ -84,6 +84,22 @@ object TsGen {
 
         var superClass: ClassTypeSignature?
 
+        if (theClass.accessExternallyChecked.and(Opcodes.ACC_INTERFACE) != 0 
+                && children.size == 1) {
+            val child = children.single().value
+            if (child is TheMethods) {
+                if (child.singles.size == 1) {
+                    // Single Abstract Method interface.
+                    val method = child.singles.values.single()
+                    append("type ").append(simpleName)
+                            .append(" = {")
+                            .append(methodDesc(method.signature, args))
+                            .appendln("};")
+                    return@apply
+                }
+            }
+        }
+
         // constructor class
         generateComment(theClass.comments, this)
         if (theClass.accessExternallyChecked.and(Opcodes.ACC_INTERFACE) == 0) {

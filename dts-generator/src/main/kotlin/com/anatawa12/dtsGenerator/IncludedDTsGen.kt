@@ -42,6 +42,18 @@ object IncludedDTsGen {
     private fun generateClass(args: GenProcessArgs, theClass: TheClass, builder: SrcBuilder) = builder.apply {
         val simpleName = theClass.name.substringAfterLast('/').substringAfterLast('.').substringAfterLast('$')
 
+        if (theClass.accessExternallyChecked.and(Opcodes.ACC_INTERFACE) != 0) {
+            if (theClass.children.size == 1) {
+                val child = theClass.children.values.single()
+                if (child is TheMethods) {
+                    if (child.singles.size == 1) {
+                        // Single Abstract Method interface.
+                        return@apply
+                    }
+                }
+            }
+        }
+
         // constructor class
         append("type ").append(simpleName)
                 .append(" = ").append(tsValItfOrPrimitive(theClass.name))
