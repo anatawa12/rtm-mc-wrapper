@@ -261,4 +261,24 @@ tasks {
                 "classes:str:${rootProject.sourceSets.getByName("mainComm").output.classesDirs.single()}"
         )
     }
+
+    @Suppress("UNUSED_VARIABLE")
+    val generateIncludedV2Dts by creating(JavaExec::class) {
+        outputs.file(file("../build/generated/api.included.v2.d.ts"))
+        inputs.dir(rootProject.sourceSets.getByName("mainComm").output.classesDirs.single())
+        dependsOn(generateApiDts, ":mainCommClasses", ":dtsJdkClasses")
+        group = "application"
+        classpath = sourceSets.main.get().runtimeClasspath
+        main = application.mainClassName
+
+        args = listOf(
+                "included-dts:${projectDir.resolve("../build/generated/api.included.v2.d.ts")}" +
+                        "!/// <reference path=\"./api.d.ts\" />",
+
+                "always:",
+                "only:str:com/anatawa12/mcWrapper/v2",
+                "exclude:str:com/anatawa12/mcWrapper/v2/_InternalAccessor",
+                "classes:str:${rootProject.sourceSets.getByName("mainComm").output.classesDirs.single()}"
+        )
+    }
 }

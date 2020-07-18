@@ -87,8 +87,9 @@ tasks.jar {
             expand("version_name" to project.version)
         }
     }
-    dependsOn(":dts-generator:generateApiDts")
+    dependsOn(":dts-generator:generateApiDts", ":dts-generator:generateApiDts")
     from("build/generated/api.d.ts")
+    from("build/generated/api.included.v2.d.ts")
     manifest {
         attributes("FMLAT" to "anatawa12_rtm_mc_wrapper_at.cfg")
     }
