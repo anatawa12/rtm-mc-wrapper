@@ -5,6 +5,10 @@ import org.objectweb.asm.Opcodes
 
 object IncludedDTsGen {
     fun generate(include: String, args: GenProcessArgs) = buildSrc {
+        args.header?.let { header ->
+            append(header)
+            appendln()
+        }
         appendln(include)
         appendln()
         generateClassesInPackage(args, args.classes.rootPackage, this)

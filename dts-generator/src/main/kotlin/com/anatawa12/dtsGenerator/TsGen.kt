@@ -5,6 +5,10 @@ import org.objectweb.asm.Opcodes
 
 object TsGen {
     fun generate(args: GenProcessArgs) = buildSrc {
+        args.header?.let { header ->
+            append(header)
+            appendln()
+        }
         appendln("type t_byte = number")
         appendln("type t_char = number")
         appendln("type t_double = number")

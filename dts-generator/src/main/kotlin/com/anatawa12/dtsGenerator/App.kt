@@ -43,6 +43,7 @@ class GenProcessArgs(val classes: ClassesManager) {
     val elementConditions: MutableList<(TheElement) -> Boolean> = mutableListOf()
     val methodConditions: MutableList<(TheSingleMethod) -> Boolean> = mutableListOf()
     val rootPackage get() = classes.rootPackage
+    var header: String? = null
     fun testElement(elem: TheElement) = elementConditions.all { it(elem) }
     fun testElement(elem: TheSingleMethod) = methodConditions.all { it(elem) }
 }
@@ -88,6 +89,9 @@ fun main(args: Array<String>) {
             }
             EndProcessType.Only -> {
                 endProcessArgs.only += input.reader().readText()
+            }
+            EndProcessType.Header -> {
+                genProcess.header = input.reader().readText()
             }
             EndProcessType.AlwaysFound -> {
                 genProcess.alwaysFound += input.reader().readText()
@@ -409,6 +413,7 @@ fun readArg(arg: String): Triple<EndProcessType, List<InputGetterProcess>, Strin
             "classes" -> endProcess = EndProcessType.Classes
             "comment" -> endProcess = EndProcessType.Comment
             "only" -> endProcess = EndProcessType.Only
+            "header" -> endProcess = EndProcessType.Header
             "always-found" -> endProcess = EndProcessType.AlwaysFound
             "condition" -> return Triple(EndProcessType.Condition, emptyList(), path)
             "exclude" -> endProcess = EndProcessType.Exclude
@@ -471,6 +476,7 @@ enum class EndProcessType {
     Classes,
     Comment,
     Only,
+    Header,
     AlwaysFound,
     Condition,
     Exclude,

@@ -175,6 +175,10 @@ object JarGen {
 
     object JavaGen {
         fun generateClassJavaFile(classes: GenProcessArgs, theClass: TheClass) = buildSrc {
+            classes.header?.let { header ->
+                append(header)
+                appendln()
+            }
             val pkg = theClass.name.substringBeforeLast('.', missingDelimiterValue = "")
             if (pkg != "")
                 append("package ").append(pkg).appendln(";")
