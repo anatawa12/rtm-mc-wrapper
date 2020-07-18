@@ -86,7 +86,12 @@ object TsGen {
 
         // constructor class
         generateComment(theClass.comments, this)
-        append("class $simpleName")
+        if (theClass.accessExternallyChecked.and(Opcodes.ACC_INTERFACE) == 0) {
+            append("class ")
+        } else {
+            append("interface ")
+        }
+        append(simpleName)
         typeParams(this, args, typeParams)
         if (theClass.signature != null) {
             val sig = theClass.signature!!
@@ -126,6 +131,22 @@ object TsGen {
                         }
                         if (!first) appendln()
                         first = false
+
+                        if (method.name.length > 3) {
+                            val propertyName = method.name[3].toLowerCase() + method.name.substring(4)
+                            if (method.name.startsWith("set")
+                                    && method.signature.params.size == 1) {
+                                // setter
+                                appendln("set $propertyName${ctorDesc(method.signature, args)}")
+                                continue
+                            } else if (method.name.startsWith("get") 
+                                    && method.signature.params.size == 0) {
+                                // getter
+                                appendln("get $propertyName${methodDesc(method.signature, args)}")
+                                continue
+                            }
+                        }
+
                         if (method.accessChecked.and(Opcodes.ACC_STATIC) != 0) {
                             append("static ")
                         }
