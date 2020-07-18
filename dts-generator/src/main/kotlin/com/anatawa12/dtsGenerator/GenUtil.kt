@@ -3,12 +3,16 @@ package com.anatawa12.dtsGenerator
 import org.objectweb.asm.Opcodes
 
 object GenUtil {
-    fun canPoetClass(args: GenProcessArgs, type: String): Boolean {
+    @JvmOverloads
+    fun canPoetClass(args: GenProcessArgs, type: String, ignoreObjectForUnknown: Boolean = false): Boolean {
         val theClass = args.classes.getClass(type)
         if (!args.testElement(theClass)) return false
         if (type.startsWith("java/") || type.startsWith("javax/")) return true
         if (args.alwaysFound.any { type.startsWith(it.replace('.', '/')) }) return true
-        return theClass.gotClass && theClass.accessExternally.and(Opcodes.ACC_PUBLIC) != 0
+        if (theClass.accessExternally.and(Opcodes.ACC_PUBLIC) == 0) return false
+        if (!ignoreObjectForUnknown && args.useObjectForUnknown) return true
+        if (!theClass.gotClass) return false
+        return true
     }
 
     fun elementFilter(element: TheElement): Boolean = when (element) {

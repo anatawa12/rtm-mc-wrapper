@@ -44,6 +44,7 @@ class GenProcessArgs(val classes: ClassesManager) {
     val methodConditions: MutableList<(TheSingleMethod) -> Boolean> = mutableListOf()
     val rootPackage get() = classes.rootPackage
     var header: String? = null
+    var useObjectForUnknown: Boolean = false
     fun testElement(elem: TheElement) = elementConditions.all { it(elem) }
     fun testElement(elem: TheSingleMethod) = methodConditions.all { it(elem) }
 }
@@ -95,6 +96,9 @@ fun main(args: Array<String>) {
             }
             EndProcessType.AlwaysFound -> {
                 genProcess.alwaysFound += input.reader().readText()
+            }
+            EndProcessType.UseObjectForUnknown -> {
+                genProcess.useObjectForUnknown = true
             }
             EndProcessType.Condition -> {
                 val (element, method) = parseCondition(input.reader().readText())
@@ -415,6 +419,7 @@ fun readArg(arg: String): Triple<EndProcessType, List<InputGetterProcess>, Strin
             "only" -> endProcess = EndProcessType.Only
             "header" -> endProcess = EndProcessType.Header
             "always-found" -> endProcess = EndProcessType.AlwaysFound
+            "use-object-for-unknown" -> return Triple(EndProcessType.UseObjectForUnknown, emptyList(), "")
             "condition" -> return Triple(EndProcessType.Condition, emptyList(), path)
             "exclude" -> endProcess = EndProcessType.Exclude
             "always" -> return Triple(EndProcessType.Always, emptyList(), "")
@@ -478,6 +483,7 @@ enum class EndProcessType {
     Only,
     Header,
     AlwaysFound,
+    UseObjectForUnknown,
     Condition,
     Exclude,
     Always,

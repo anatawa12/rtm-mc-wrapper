@@ -9,6 +9,7 @@ object TsGen {
             append(header)
             appendln()
         }
+        appendln("type t_unknown = unknown")
         appendln("type t_byte = number")
         appendln("type t_char = number")
         appendln("type t_double = number")
@@ -86,7 +87,7 @@ object TsGen {
         // constructor class
         generateComment(theClass.comments, this)
         append("class $simpleName")
-        typeParams(this, typeParams)
+        typeParams(this, args, typeParams)
         if (theClass.signature != null) {
             val sig = theClass.signature!!
             superClass = sig.superClass
@@ -101,7 +102,7 @@ object TsGen {
             superClass = null
         if (superClass != null) { 
             append(" extends ")
-            append(tsValItfOrPrimitive(superClass, true))
+            append(tsValItfOrPrimitive(superClass, args, true))
         }
 
         appendln(" {")
@@ -120,7 +121,7 @@ object TsGen {
                             if (!first) appendln()
                             first = false
                             generateComment(method.comments, this)
-                            appendln("constructor${ctorDesc(method.signature)}")
+                            appendln("constructor${ctorDesc(method.signature, args)}")
                             continue
                         }
                         if (!first) appendln()
@@ -129,7 +130,7 @@ object TsGen {
                             append("static ")
                         }
                         generateComment(method.comments, this)
-                        appendln("$name${methodDesc(method.signature)}")
+                        appendln("$name${methodDesc(method.signature, args)}")
                     }
                 }
                 is TheField -> {
@@ -142,7 +143,7 @@ object TsGen {
                     }
 
                     generateComment(child.comments, this)
-                    appendln("$name: ${tsValItfOrPrimitive(child.signature)}")
+                    appendln("$name: ${tsValItfOrPrimitive(child.signature, args)}")
                 }
                 TheDuplicated -> {
                     // nop
@@ -154,7 +155,7 @@ object TsGen {
         appendln()
     }
 
-    private fun tsValItfOrPrimitive(type: JavaTypeSignature, superType: Boolean = false): String = when (type) {
+    private fun tsValItfOrPrimitive(type: JavaTypeSignature, args: GenProcessArgs, superType: Boolean = false): String = when (type) {
         is BaseType -> when (type.type) {
             BaseType.Kind.Byte -> "t_byte"
             BaseType.Kind.Char -> "t_char"
@@ -168,23 +169,25 @@ object TsGen {
         is ClassTypeSignature -> buildString {
             if (!superType && type.name in extraTypeMapping) {
                 append(extraTypeMapping[type.name])
+            } else if (!GenUtil.canPoetClass(args, type.name, true)) {
+                append("t_unknown /* ${type.name.substringAfterLast('/')} */")
             } else {
                 append("Packages." + type.name.replace('/', '.'))
                 if (type.args.isNotEmpty()) {
                     append('<')
                     type.args.joinTo(this) {
                         if (it.type == null) "any"
-                        else tsValItfOrPrimitive(it.type, true)
+                        else tsValItfOrPrimitive(it.type, args, true)
                     }
                     append('>')
                 }
             }
         }
         is TypeVariable -> type.name
-        is ArrayTypeSignature -> "t_array<${tsValItfOrPrimitive(type.element, superType)}>"
+        is ArrayTypeSignature -> "t_array<${tsValItfOrPrimitive(type.element, args, superType)}>"
     }
 
-    private fun typeParams(builder: SrcBuilder, typeParams: List<TypeParam>) = with(builder) {
+    private fun typeParams(builder: SrcBuilder, args: GenProcessArgs, typeParams: List<TypeParam>) = with(builder) {
         if (typeParams.isNotEmpty()) {
             val containList = mutableSetOf<String>()
             var id = 0
@@ -211,7 +214,7 @@ object TsGen {
                     for (superType in typeParam.superTypes) {
                         if (!first1) append(" & ")
                         first1 = false
-                        append(tsValItfOrPrimitive(superType))
+                        append(tsValItfOrPrimitive(superType, args))
                     }
                 }
                 append(" = any")
@@ -220,29 +223,29 @@ object TsGen {
         }
     }
 
-    private fun methodDesc(signature: MethodSignature) = buildSrc {
-        typeParams(this, signature.typeParams)
+    private fun methodDesc(signature: MethodSignature, args: GenProcessArgs) = buildSrc {
+        typeParams(this, args, signature.typeParams)
         append('(')
         var first = true
         for ((i, typeSignature) in signature.params.withIndex()) {
             if (!first) append(", ")
             first = false
-            append("par$i: ${tsValItfOrPrimitive(typeSignature)}")
+            append("par$i: ${tsValItfOrPrimitive(typeSignature, args)}")
         }
         append("): ")
         if (signature.result == null)
             append("void")
         else
-            append(tsValItfOrPrimitive(signature.result))
+            append(tsValItfOrPrimitive(signature.result, args))
     }
 
-    private fun ctorDesc(signature: MethodSignature) = buildSrc {
+    private fun ctorDesc(signature: MethodSignature, args: GenProcessArgs) = buildSrc {
         append('(')
         var first = true
         for ((i, typeSignature) in signature.params.asSequence().drop(0).withIndex()) {
             if (!first) append(", ")
             first = false
-            append("par$i: ${tsValItfOrPrimitive(typeSignature)}")
+            append("par$i: ${tsValItfOrPrimitive(typeSignature, args)}")
         }
         append(")")
     }
