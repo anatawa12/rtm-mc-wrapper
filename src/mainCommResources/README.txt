@@ -10,7 +10,9 @@ rtm-mc-wrapper
 - api.d.ts
 > 2.0.0からのAPI向けの.d.tsになります。
 - api.included.v2.d.ts
-> `includePackage(com.anatawa12.mcWrapper.v2)`をincludeした際のd.ts
+> `importPackage(com.anatawa12.mcWrapper.v2)`を実行した際のd.ts
+- rhino-import.d.ts
+> importPackage関数を含むd.ts。コメントの通りCreative Commons Zero License(CC0, Public Domain相当)です。
 - com/anatawa12/mcWrapper ディレクトリ
 > API本体の実装が入っています。コンパイル済.classファイルです。
 
