@@ -98,6 +98,8 @@ tasks {
         downloadDependencyTask(downloaded)
     }
 
+    val headerConfiguration = "header:file:str:${projectDir.resolve("../src/generated-header.txt")}"
+
     val minecraftConfigurationsForJava = listOf(
             "need:str:net/minecraft/block/Block",
             "need:str:net/minecraft/world/World",
@@ -141,6 +143,8 @@ tasks {
         args = listOf(
                 "jar:${projectDir.resolve("../build/generated/apiComm.jar")}",
 
+                headerConfiguration,
+
                 "always-found:str:com/google/",
 
                 "condition:or:not:if-srg:comment-disallow-either:minecraft 1.12.2 with srg by forge:minecraft 1.7.10 with srg by forge",
@@ -177,6 +181,8 @@ tasks {
         args = listOf(
                 "jar:${projectDir.resolve("../build/generated/api1710.jar")}",
 
+                headerConfiguration,
+
                 "always-found:str:com/google/",
 
                 "need:str:jp/ngt/ngtlib/io/NGTLog",
@@ -206,6 +212,8 @@ tasks {
 
         args = listOf(
                 "jar:${projectDir.resolve("../build/generated/api1122.jar")}",
+
+                headerConfiguration,
 
                 "always-found:str:com/google/",
 
@@ -242,6 +250,8 @@ tasks {
         args = listOf(
                 "dts:${projectDir.resolve("../build/generated/api.d.ts")}",
 
+                headerConfiguration,
+
                 "always:",
                 "only:str:com/anatawa12/mcWrapper/v2",
                 "exclude:str:com/anatawa12/mcWrapper/v2/_InternalAccessor",
@@ -274,6 +284,8 @@ tasks {
         args = listOf(
                 "included-dts:${projectDir.resolve("../build/generated/api.included.v2.d.ts")}" +
                         "!/// <reference path=\"./api.d.ts\" />",
+
+                headerConfiguration,
 
                 "always:",
                 "only:str:com/anatawa12/mcWrapper/v2",
