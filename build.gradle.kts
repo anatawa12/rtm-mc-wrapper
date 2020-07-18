@@ -81,6 +81,8 @@ mainComm.apply {
 }
 
 tasks.jar {
+    archiveExtension.set("zip")
+
     for (main in listOf(main1122, main1710, mainComm)) {
         from(main.output.classesDirs)
         from(main.output.resourcesDir!!) {
