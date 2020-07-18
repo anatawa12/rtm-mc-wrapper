@@ -9,6 +9,7 @@ object GenUtil {
         if (!args.testElement(theClass)) return false
         if (type.startsWith("java/") || type.startsWith("javax/")) return true
         if (args.alwaysFound.any { type.startsWith(it.replace('.', '/')) }) return true
+        if (args.alwaysExclude.any { type.startsWith(it.replace('.', '/')) }) return false
         if (theClass.accessExternally.and(Opcodes.ACC_PUBLIC) == 0) return false
         if (!ignoreObjectForUnknown && args.useObjectForUnknown) return true
         if (!theClass.gotClass) return false
