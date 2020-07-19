@@ -1,4 +1,4 @@
-package com.anatawa12.mcWrapper.v2;
+package rmw2;
 
 import net.minecraft.nbt.NBTTagInt;
 

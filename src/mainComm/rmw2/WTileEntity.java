@@ -1,4 +1,4 @@
-package com.anatawa12.mcWrapper.v2;
+package rmw2;
 
 import com.anatawa12.mcWrapper.internal.McWrapper;
 import com.anatawa12.mcWrapper.internal.WTileEntityImpl;

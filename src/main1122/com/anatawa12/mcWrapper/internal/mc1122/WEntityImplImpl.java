@@ -1,8 +1,8 @@
 package com.anatawa12.mcWrapper.internal.mc1122;
 
 import com.anatawa12.mcWrapper.internal.WEntityImpl;
-import com.anatawa12.mcWrapper.v2.WNBTCompound;
-import com.anatawa12.mcWrapper.v2._InternalAccessor;
+import rmw2.WNBTCompound;
+import rmw2._InternalAccessor;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 
