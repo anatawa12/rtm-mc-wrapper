@@ -73,6 +73,10 @@ val test: SourceSet by sourceSets.getting {
     resources.srcDirs.clear()
 }
 
+tasks.test {
+    useJUnitPlatform()
+}
+
 dependencies {
     apiCommImplementation("org.apache.logging.log4j:log4j-core:2.8.1")
     apiCommImplementation("com.google.guava:guava:21.0")
@@ -80,6 +84,8 @@ dependencies {
     apiCommImplementation("net.minecraft:launchwrapper:1.12")
 
     testImplementation(mainComm.runtimeClasspath)
+    testImplementation("org.junit.jupiter:junit-jupiter:5.5.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.5.2")
 }
 
 mainComm.apply {

@@ -45,6 +45,14 @@ public class JSUtil {
         return keys.keys(object);
     }
 
+    public static void checkInitialized() {
+        if (JSUtil.isArray == null) throw new IllegalStateException("isArray is not initialized");
+        if (JSUtil.arrayGetter == null) throw new IllegalStateException("arrayGetter is not initialized");
+        if (JSUtil.arraySetter == null) throw new IllegalStateException("arraySetter is not initialized");
+        if (JSUtil.typeof == null) throw new IllegalStateException("typeof is not initialized");
+        if (JSUtil.keys == null) throw new IllegalStateException("keys is not initialized");
+    }
+
     // setters called by js
 
     public static void setIsArray(Predicate<Object> isArray) {
