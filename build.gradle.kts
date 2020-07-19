@@ -33,8 +33,7 @@ val dtsJdk = sourceSets.create("dtsJdk") {
 
 val apiComm = sourceSets.create("apiComm") {
     java {
-        srcDirs.clear()
-        srcDir("src/apiCommManually")
+        setSrcDirs(listOf("src/apiCommManually"))
     }
     resources.srcDirs.clear()
 }
@@ -45,8 +44,7 @@ val names = listOf("Comm", "1122", "1710")
 for (name in names) {
     val main = sourceSets.create("main$name") {
         java {
-            srcDirs.clear()
-            srcDir("src/main$name")
+            setSrcDirs(mutableListOf("src/main$name"))
         }
         resources.srcDirs.clear()
     }
@@ -65,16 +63,24 @@ for (name in names) {
             .dependsOn(":dts-generator:generate${name}Java")
 }
 
+val main1122 by sourceSets
+val main1710 by sourceSets
+val mainComm by sourceSets
+val test: SourceSet by sourceSets.getting {
+    java {
+        setSrcDirs(mutableListOf("src/test"))
+    }
+    resources.srcDirs.clear()
+}
+
 dependencies {
     apiCommImplementation("org.apache.logging.log4j:log4j-core:2.8.1")
     apiCommImplementation("com.google.guava:guava:21.0")
     apiCommImplementation("com.google.code.gson:gson:2.8.0")
     apiCommImplementation("net.minecraft:launchwrapper:1.12")
-}
 
-val main1122 = sourceSets.getByName("main1122")
-val main1710 = sourceSets.getByName("main1710")
-val mainComm = sourceSets.getByName("mainComm")
+    testImplementation(mainComm.runtimeClasspath)
+}
 
 mainComm.apply {
     resources {
