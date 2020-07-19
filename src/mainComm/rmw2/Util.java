@@ -20,7 +20,7 @@ public class Util {
         return (entity, object) -> init.init(WEntity.wrap(entity), object);
     }
 
-    public static TileEntityInitFunction entityInit(WTileEntityInitFunction init) {
+    public static TileEntityInitFunction tileEntityInit(WTileEntityInitFunction init) {
         return (entity, object) -> init.init(WTileEntity.wrap(entity), object);
     }
 
@@ -28,7 +28,7 @@ public class Util {
         return (entity, pass, partialTicks) -> init.render(WEntity.wrap(entity), pass, partialTicks);
     }
 
-    public static TileEntityRenderFunction entityRender(WTileEntityRenderFunction init) {
+    public static TileEntityRenderFunction tileEntityRender(WTileEntityRenderFunction init) {
         return (entity, pass, partialTicks) -> init.render(WTileEntity.wrap(entity), pass, partialTicks);
     }
 }
