@@ -1,6 +1,7 @@
 package rmw2;
 
 import com.anatawa12.mcWrapper.internal.McWrapper;
+import rmw2.functions.RMWModule;
 
 import java.util.Arrays;
 import java.util.HashSet;

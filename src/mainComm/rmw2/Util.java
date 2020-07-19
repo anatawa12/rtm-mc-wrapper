@@ -1,6 +1,14 @@
 package rmw2;
 
 import com.anatawa12.mcWrapper.internal.McWrapper;
+import rmw2.functions.EntityInitFunction;
+import rmw2.functions.EntityRenderFunction;
+import rmw2.functions.TileEntityInitFunction;
+import rmw2.functions.TileEntityRenderFunction;
+import rmw2.functions.WEntityInitFunction;
+import rmw2.functions.WEntityRenderFunction;
+import rmw2.functions.WTileEntityInitFunction;
+import rmw2.functions.WTileEntityRenderFunction;
 
 public class Util {
     private Util() {}

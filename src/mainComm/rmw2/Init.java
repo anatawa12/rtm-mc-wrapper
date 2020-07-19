@@ -1,6 +1,7 @@
 package rmw2;
 
 import com.anatawa12.mcWrapper.internal.utils.JSUtil;
+import rmw2.functions.EvalFunction;
 
 public final class Init {
     public static void init(EvalFunction eval) {
