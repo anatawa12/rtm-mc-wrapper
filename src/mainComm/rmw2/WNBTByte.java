@@ -1,14 +1,14 @@
-package com.anatawa12.mcWrapper.v2;
+package rmw2;
 
-import net.minecraft.nbt.NBTTagShort;
+import net.minecraft.nbt.NBTTagByte;
 
-public final class WNBTShort extends WNBTPrimitive<NBTTagShort> {
-    public WNBTShort(NBTTagShort real) {
+public final class WNBTByte extends WNBTPrimitive<NBTTagByte> {
+    public WNBTByte(NBTTagByte real) {
         super(real);
     }
 
-    public WNBTShort(short value) {
-        super(new NBTTagShort(value));
+    public WNBTByte(byte value) {
+        super(new NBTTagByte(value));
     }
 
     @Override

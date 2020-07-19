@@ -1,4 +1,4 @@
-package com.anatawa12.mcWrapper.v2;
+package rmw2;
 
 import com.anatawa12.mcWrapper.internal.utils.JSUtil;
 import net.minecraft.nbt.NBTTagCompound;
@@ -19,18 +19,18 @@ public final class WNBTCompound extends WNBTBase<NBTTagCompound> {
     private static NBTTagCompound convertAll(Object real) {
         NBTTagCompound compound = new NBTTagCompound();
         for (Object key : JSUtil.keys(real)) {
-            compound.func_74782_a(key.toString(), WNBTBase.unwrap(JSUtil.get(real, key)));
+            compound.func_74782_a(key.toString(), unwrap(JSUtil.get(real, key)));
         }
         return compound;
     }
 
     @SuppressWarnings("rawtypes")
     public WNBTBase get(String name) {
-        return WNBTBase.wrap(real.func_74781_a(name));
+        return wrap(real.func_74781_a(name));
     }
 
     public void set(String name, Object value) {
-        real.func_74782_a(name, WNBTBase.unwrap(value));
+        real.func_74782_a(name, unwrap(value));
     }
 
     public static WNBTCompound unwrapCompound(Object nbt) {

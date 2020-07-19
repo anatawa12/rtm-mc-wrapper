@@ -1,7 +1,7 @@
 package com.anatawa12.mcWrapper.internal;
 
-import com.anatawa12.mcWrapper.v2.WNBTCompound;
-import com.anatawa12.mcWrapper.v2.WTileEntity;
+import rmw2.WNBTCompound;
+import rmw2.WTileEntity;
 import net.minecraft.tileentity.TileEntity;
 
 public interface WTileEntityImpl {

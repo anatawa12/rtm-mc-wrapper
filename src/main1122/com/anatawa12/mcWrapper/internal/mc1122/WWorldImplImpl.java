@@ -1,10 +1,10 @@
 package com.anatawa12.mcWrapper.internal.mc1122;
 
 import com.anatawa12.mcWrapper.internal.WWorldImpl;
-import com.anatawa12.mcWrapper.v2.WBlock;
-import com.anatawa12.mcWrapper.v2.WTileEntity;
-import com.anatawa12.mcWrapper.v2.WWorld;
-import com.anatawa12.mcWrapper.v2._InternalAccessor;
+import rmw2.WBlock;
+import rmw2.WTileEntity;
+import rmw2.WWorld;
+import rmw2._InternalAccessor;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;

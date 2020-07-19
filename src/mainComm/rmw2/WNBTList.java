@@ -1,4 +1,4 @@
-package com.anatawa12.mcWrapper.v2;
+package rmw2;
 
 import com.anatawa12.mcWrapper.internal.utils.JSUtil;
 import net.minecraft.nbt.NBTTagList;
@@ -17,7 +17,7 @@ public final class WNBTList extends WNBTBase<NBTTagList> {
         NBTTagList list = new NBTTagList();
         int length = (int) JSUtil.get(array, "length");
         for (int i = 0; i < length; i++) {
-            list.func_74742_a(WNBTBase.unwrap(JSUtil.get(array, i)));
+            list.func_74742_a(unwrap(JSUtil.get(array, i)));
         }
         return list;
     }
@@ -43,16 +43,16 @@ public final class WNBTList extends WNBTBase<NBTTagList> {
     }
 
     public void set(int index, Object value) {
-        real.func_150304_a(index, WNBTBase.unwrap(value));
+        real.func_150304_a(index, unwrap(value));
     }
 
     public void add(Object value) {
-        real.func_74742_a(WNBTBase.unwrap(value));
+        real.func_74742_a(unwrap(value));
     }
 
     @SuppressWarnings("rawtypes")
     public WNBTBase remove(int index) {
-        return WNBTBase.wrap(real.func_74744_a(index));
+        return wrap(real.func_74744_a(index));
     }
 
     public int getSize() {

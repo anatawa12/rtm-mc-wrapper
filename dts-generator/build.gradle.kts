@@ -255,21 +255,21 @@ tasks {
                 "always-exclude:str:com/anatawa12/mcWrapper/internal/",
 
                 "always:",
-                "only:str:com/anatawa12/mcWrapper/v2",
-                "exclude:str:com/anatawa12/mcWrapper/v2/_InternalAccessor",
-                "sig:str:com/anatawa12/mcWrapper/v2/WNBTBase!Ljava/lang/Object;",
-                "sig:str:com/anatawa12/mcWrapper/v2/WNBTByte!Lcom/anatawa12/mcWrapper/v2/WNBTBase;",
-                "sig:str:com/anatawa12/mcWrapper/v2/WNBTByteArray!Lcom/anatawa12/mcWrapper/v2/WNBTBase;",
-                "sig:str:com/anatawa12/mcWrapper/v2/WNBTCompound!Lcom/anatawa12/mcWrapper/v2/WNBTBase;",
-                "sig:str:com/anatawa12/mcWrapper/v2/WNBTDouble!Lcom/anatawa12/mcWrapper/v2/WNBTBase;",
-                "sig:str:com/anatawa12/mcWrapper/v2/WNBTFloat!Lcom/anatawa12/mcWrapper/v2/WNBTBase;",
-                "sig:str:com/anatawa12/mcWrapper/v2/WNBTInt!Lcom/anatawa12/mcWrapper/v2/WNBTBase;",
-                "sig:str:com/anatawa12/mcWrapper/v2/WNBTIntArray!Lcom/anatawa12/mcWrapper/v2/WNBTBase;",
-                "sig:str:com/anatawa12/mcWrapper/v2/WNBTList!Lcom/anatawa12/mcWrapper/v2/WNBTBase;",
-                "sig:str:com/anatawa12/mcWrapper/v2/WNBTLong!Lcom/anatawa12/mcWrapper/v2/WNBTBase;",
-                "sig:str:com/anatawa12/mcWrapper/v2/WNBTPrimitive!Lcom/anatawa12/mcWrapper/v2/WNBTBase;",
-                "sig:str:com/anatawa12/mcWrapper/v2/WNBTShort!Lcom/anatawa12/mcWrapper/v2/WNBTBase;",
-                "sig:str:com/anatawa12/mcWrapper/v2/WNBTString!Lcom/anatawa12/mcWrapper/v2/WNBTBase;",
+                "only:str:rmw2",
+                "exclude:str:rmw2/_InternalAccessor",
+                "sig:str:rmw2/WNBTBase!Ljava/lang/Object;",
+                "sig:str:rmw2/WNBTByte!Lrmw2/WNBTBase;",
+                "sig:str:rmw2/WNBTByteArray!Lrmw2/WNBTBase;",
+                "sig:str:rmw2/WNBTCompound!Lrmw2/WNBTBase;",
+                "sig:str:rmw2/WNBTDouble!Lrmw2/WNBTBase;",
+                "sig:str:rmw2/WNBTFloat!Lrmw2/WNBTBase;",
+                "sig:str:rmw2/WNBTInt!Lrmw2/WNBTBase;",
+                "sig:str:rmw2/WNBTIntArray!Lrmw2/WNBTBase;",
+                "sig:str:rmw2/WNBTList!Lrmw2/WNBTBase;",
+                "sig:str:rmw2/WNBTLong!Lrmw2/WNBTBase;",
+                "sig:str:rmw2/WNBTPrimitive!Lrmw2/WNBTBase;",
+                "sig:str:rmw2/WNBTShort!Lrmw2/WNBTBase;",
+                "sig:str:rmw2/WNBTString!Lrmw2/WNBTBase;",
                 "classes:str:${rootProject.sourceSets.getByName("mainComm").output.classesDirs.single()}"
         )
     }
@@ -290,8 +290,8 @@ tasks {
                 headerConfiguration,
 
                 "always:",
-                "only:str:com/anatawa12/mcWrapper/v2",
-                "exclude:str:com/anatawa12/mcWrapper/v2/_InternalAccessor",
+                "only:str:rmw2",
+                "exclude:str:rmw2/_InternalAccessor",
                 "classes:str:${rootProject.sourceSets.getByName("mainComm").output.classesDirs.single()}"
         )
     }
