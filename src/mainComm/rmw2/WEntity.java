@@ -64,4 +64,8 @@ public final class WEntity {
         }
         return entityId;
     }
+
+    public static WEntity wrap(Entity entity) {
+        return impl.wrap(entity);
+    }
 }
