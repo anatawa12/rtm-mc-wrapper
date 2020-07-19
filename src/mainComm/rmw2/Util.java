@@ -1,6 +1,14 @@
 package rmw2;
 
 import com.anatawa12.mcWrapper.internal.McWrapper;
+import rmw2.functions.EntityInitFunction;
+import rmw2.functions.EntityRenderFunction;
+import rmw2.functions.TileEntityInitFunction;
+import rmw2.functions.TileEntityRenderFunction;
+import rmw2.functions.WEntityInitFunction;
+import rmw2.functions.WEntityRenderFunction;
+import rmw2.functions.WTileEntityInitFunction;
+import rmw2.functions.WTileEntityRenderFunction;
 
 public class Util {
     private Util() {}
@@ -12,7 +20,7 @@ public class Util {
         return (entity, object) -> init.init(WEntity.wrap(entity), object);
     }
 
-    public static TileEntityInitFunction entityInit(WTileEntityInitFunction init) {
+    public static TileEntityInitFunction tileEntityInit(WTileEntityInitFunction init) {
         return (entity, object) -> init.init(WTileEntity.wrap(entity), object);
     }
 
@@ -20,7 +28,7 @@ public class Util {
         return (entity, pass, partialTicks) -> init.render(WEntity.wrap(entity), pass, partialTicks);
     }
 
-    public static TileEntityRenderFunction entityRender(WTileEntityRenderFunction init) {
+    public static TileEntityRenderFunction tileEntityRender(WTileEntityRenderFunction init) {
         return (entity, pass, partialTicks) -> init.render(WTileEntity.wrap(entity), pass, partialTicks);
     }
 }

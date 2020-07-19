@@ -1,8 +1,8 @@
-package rmw2;
+package rmw2.functions;
 
 import jp.ngt.rtm.render.ModelObject;
 import net.minecraft.entity.Entity;
 
 public interface EntityInitFunction {
-    public void init(Entity entity, ModelObject object);
+    void init(Entity entity, ModelObject object);
 }

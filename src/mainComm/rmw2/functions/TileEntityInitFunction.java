@@ -1,8 +1,8 @@
-package rmw2;
+package rmw2.functions;
 
 import jp.ngt.rtm.render.ModelObject;
 import net.minecraft.tileentity.TileEntity;
 
 public interface TileEntityInitFunction {
-    public void init(TileEntity entity, ModelObject object);
+    void init(TileEntity entity, ModelObject object);
 }

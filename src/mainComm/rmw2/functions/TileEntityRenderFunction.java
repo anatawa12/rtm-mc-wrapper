@@ -1,4 +1,4 @@
-package rmw2;
+package rmw2.functions;
 
 import net.minecraft.tileentity.TileEntity;
 
