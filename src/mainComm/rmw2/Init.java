@@ -23,5 +23,6 @@ public final class Init {
             "    JSUtil.setArrayGetter(function(array, index) { return array[index]; });\n" +
             "    JSUtil.setArraySetter(function(array, index, value) { array[index] = value; });\n" +
             "    JSUtil.setTypeof(function(object) { return typeof object; });\n" +
+            "    JSUtil.setKeys(function(object) { return Object.keys(object); });\n" +
             "})();\n";
 }
