@@ -66,12 +66,4 @@ public class JSUtil {
     public static void setKeys(KeysGetter keys) {
         JSUtil.keys = keys;
     }
-
-    interface KeysGetter {
-        Object[] keys(Object obj);
-    }
-
-    interface ArraySetter {
-        void apply(Object object, Object key, Object value);
-    }
 }
