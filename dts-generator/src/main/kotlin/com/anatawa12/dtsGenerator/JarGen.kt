@@ -64,7 +64,7 @@ object JarGen {
         }
 
         private fun generateClassFile(args: GenProcessArgs, theClass: TheClass, outerTypeParams: List<TypeParam>): ByteArray {
-            val writer = ClassWriter(0)
+            val writer = ClassWriter(ClassWriter.COMPUTE_FRAMES or ClassWriter.COMPUTE_FRAMES)
 
             val children = theClass.children.entries
                     .sortedWith(compareBy<Map.Entry<String, TheElement>> { it.value.type }
@@ -135,8 +135,9 @@ object JarGen {
                                     null
                             ).apply {
                                 visitCode()
-                                visitInsn(Opcodes.RETURN)
-                                visitMaxs(0, method.signature.params.size + 3)
+                                visitInsn(Opcodes.ACONST_NULL)
+                                visitInsn(Opcodes.ATHROW)
+                                visitMaxs(0, 0)
                                 visitEnd()
                             }
                         }
