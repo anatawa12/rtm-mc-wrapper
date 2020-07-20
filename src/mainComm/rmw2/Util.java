@@ -13,12 +13,14 @@ public class Util {
     @TsSignature("<T extends any[], R>(func: (entity: Packages.rmw2.WEntity, ...args: T) => R)" +
             ": (entity: t_unknown /* Entity */, ...args: T) => R")
     public static Object entityFunc(Object func) {
+        JSUtil.checkInitialized();
         return JSUtil.WEntityWrapFunc.apply(func);
     }
 
     @TsSignature("<T extends any[], R>(func: (tile: Packages.rmw2.WTileEntity, ...args: T) => R)" +
             ": (tile: t_unknown /* TileEntity */, ...args: T) => R")
     public static Object tileEntityFunc(Object func) {
+        JSUtil.checkInitialized();
         return JSUtil.WEntityWrapFunc.apply(func);
     }
 

@@ -14,6 +14,7 @@ public class JSUtil {
     public static Function<Object, Object> WTileEntityWrapFunc;
 
     public static <T> T requireInstanceOf(Object object, String name, Class<T> clazz) {
+        JSUtil.checkInitialized();
         Object value = arrayGetter.apply(object, name);
         if (value == null) return null; 
         if (!clazz.isInstance(value))
@@ -22,39 +23,49 @@ public class JSUtil {
     }
 
     public static <T> T get(Object object, String name, Class<T> clazz, T defaultValue) {
+        JSUtil.checkInitialized();
         Object value = arrayGetter.apply(object, name);
         if (!clazz.isInstance(value)) return defaultValue;
         return clazz.cast(value);
     }
 
     public static Object get(Object object, Object key) {
+        JSUtil.checkInitialized();
         return arrayGetter.apply(object, key);
     }
 
     public static void set(Object object, Object key, Object value) {
+        JSUtil.checkInitialized();
         arraySetter.apply(object, key, value);
     }
 
     public static boolean isArray(Object object) {
+        JSUtil.checkInitialized();
         return isArray.test(object);
     }
 
     public static String typeof(Object object) {
+        JSUtil.checkInitialized();
         return typeof.apply(object);
     }
 
     public static Object[] keys(Object object) {
+        JSUtil.checkInitialized();
         return keys.keys(object);
     }
 
     public static void checkInitialized() {
-        if (JSUtil.isArray == null) throw new IllegalStateException("isArray is not initialized");
-        if (JSUtil.arrayGetter == null) throw new IllegalStateException("arrayGetter is not initialized");
-        if (JSUtil.arraySetter == null) throw new IllegalStateException("arraySetter is not initialized");
-        if (JSUtil.typeof == null) throw new IllegalStateException("typeof is not initialized");
-        if (JSUtil.keys == null) throw new IllegalStateException("keys is not initialized");
-        if (JSUtil.WEntityWrapFunc == null) throw new IllegalStateException("WEntityWrapFunc is not initialized");
-        if (JSUtil.WTileEntityWrapFunc == null) throw new IllegalStateException("WTileEntityWrapFunc is not initialized");
+        if (JSUtil.isArray == null 
+                || JSUtil.arrayGetter == null 
+                || JSUtil.arraySetter == null 
+                || JSUtil.typeof == null 
+                || JSUtil.keys == null 
+                || JSUtil.WEntityWrapFunc == null 
+                || JSUtil.WTileEntityWrapFunc == null
+        ) {
+            throw new IllegalStateException("Packages.rmw2.Init.init(eval) is not called. " +
+                    "please call it before use rmw2.");
+        }
     }
 
     // setters called by js
