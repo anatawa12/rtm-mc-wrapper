@@ -1,6 +1,7 @@
 package com.anatawa12.dtsGenerator
 
 import org.objectweb.asm.Opcodes
+import org.objectweb.asm.Type
 
 
 object TsGen {
@@ -167,7 +168,14 @@ object TsGen {
                             append("static ")
                         }
                         generateComment(method.comments, this)
-                        appendln("$name${methodDesc(method.signature, args)}")
+                        append(name)
+                        val signatureAnnotation = method.annotations[Type.getDescriptor(TsSignature::class.java)]
+                        if (signatureAnnotation != null) {
+                            append(signatureAnnotation.values.windowed(2).single { it[0] == "value" }[1].toString())
+                        } else {
+                            append(methodDesc(method.signature, args))
+                        }
+                        appendln()
                     }
                 }
                 is TheField -> {
