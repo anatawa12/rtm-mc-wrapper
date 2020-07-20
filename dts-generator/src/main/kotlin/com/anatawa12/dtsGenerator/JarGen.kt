@@ -117,8 +117,8 @@ object JarGen {
 
                         // inner class
                         writer.visitInnerClass(
-                                child.name,
-                                theClass.name,
+                                child.name.replace('.', '/'),
+                                theClass.name.replace('.', '/'),
                                 child.name.substringAfter('$'),
                                 child.accessExternallyChecked.and(Opcodes.ACC_SUPER.inv())
                         )
@@ -134,11 +134,13 @@ object JarGen {
                                     method.signature.toString(),
                                     null
                             ).apply {
-                                visitCode()
-                                visitInsn(Opcodes.ACONST_NULL)
-                                visitInsn(Opcodes.ATHROW)
-                                visitMaxs(0, 0)
-                                visitEnd()
+                                if (method.accessChecked.and(Opcodes.ACC_ABSTRACT) == 0) {
+                                    visitCode()
+                                    visitInsn(Opcodes.ACONST_NULL)
+                                    visitInsn(Opcodes.ATHROW)
+                                    visitMaxs(0, 0)
+                                    visitEnd()
+                                }
                             }
                         }
                     }
@@ -348,7 +350,7 @@ object JarGen {
                             append(")")
                             if (method.accessChecked.and(Opcodes.ACC_ABSTRACT) == 0
                                     && theClass.accessExternallyChecked.and(Opcodes.ACC_INTERFACE) == 0) {
-                                appendln("{}")
+                                appendln("{ throw null; }")
                             } else {
                                 appendln(";")
                             }
