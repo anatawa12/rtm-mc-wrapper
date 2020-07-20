@@ -10,6 +10,8 @@ public class JSUtil {
     private static ArraySetter arraySetter;
     private static Function<Object, String> typeof;
     private static KeysGetter keys;
+    public static Function<Object, Object> WEntityWrapFunc;
+    public static Function<Object, Object> WTileEntityWrapFunc;
 
     public static <T> T requireInstanceOf(Object object, String name, Class<T> clazz) {
         Object value = arrayGetter.apply(object, name);
@@ -51,6 +53,8 @@ public class JSUtil {
         if (JSUtil.arraySetter == null) throw new IllegalStateException("arraySetter is not initialized");
         if (JSUtil.typeof == null) throw new IllegalStateException("typeof is not initialized");
         if (JSUtil.keys == null) throw new IllegalStateException("keys is not initialized");
+        if (JSUtil.WEntityWrapFunc == null) throw new IllegalStateException("WEntityWrapFunc is not initialized");
+        if (JSUtil.WTileEntityWrapFunc == null) throw new IllegalStateException("WTileEntityWrapFunc is not initialized");
     }
 
     // setters called by js
@@ -73,5 +77,13 @@ public class JSUtil {
 
     public static void setKeys(KeysGetter keys) {
         JSUtil.keys = keys;
+    }
+
+    public static void setWEntityWrapFunc(Function<Object, Object> wEntityWrapFunc) {
+        JSUtil.WEntityWrapFunc = wEntityWrapFunc;
+    }
+
+    public static void setWTileEntityWrapFunc(Function<Object, Object> wTileEntityWrapFunc) {
+        JSUtil.WTileEntityWrapFunc = wTileEntityWrapFunc;
     }
 }

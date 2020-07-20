@@ -1,14 +1,8 @@
 package rmw2;
 
+import com.anatawa12.dtsGenerator.TsSignature;
 import com.anatawa12.mcWrapper.internal.McWrapper;
-import rmw2.functions.EntityInitFunction;
-import rmw2.functions.EntityRenderFunction;
-import rmw2.functions.TileEntityInitFunction;
-import rmw2.functions.TileEntityRenderFunction;
-import rmw2.functions.WEntityInitFunction;
-import rmw2.functions.WEntityRenderFunction;
-import rmw2.functions.WTileEntityInitFunction;
-import rmw2.functions.WTileEntityRenderFunction;
+import com.anatawa12.mcWrapper.internal.utils.JSUtil;
 
 public class Util {
     private Util() {}
@@ -16,19 +10,16 @@ public class Util {
     public final boolean is1710 = McWrapper.is1710;
     public final boolean is1122 = !is1710;
 
-    public static EntityInitFunction entityInit(WEntityInitFunction init) {
-        return (entity, object) -> init.init(WEntity.wrap(entity), object);
+    @TsSignature("<T extends any[], R>(func: (entity: Packages.rmw2.WEntity, ...args: T) => R)" +
+            ": (entity: t_unknown /* Entity */, ...args: T) => R")
+    public static Object entityFunc(Object func) {
+        return JSUtil.WEntityWrapFunc.apply(func);
     }
 
-    public static TileEntityInitFunction tileEntityInit(WTileEntityInitFunction init) {
-        return (entity, object) -> init.init(WTileEntity.wrap(entity), object);
+    @TsSignature("<T extends any[], R>(func: (tile: Packages.rmw2.WTileEntity, ...args: T) => R)" +
+            ": (tile: t_unknown /* TileEntity */, ...args: T) => R")
+    public static Object tileEntityFunc(Object func) {
+        return JSUtil.WEntityWrapFunc.apply(func);
     }
 
-    public static EntityRenderFunction entityRender(WEntityRenderFunction init) {
-        return (entity, pass, partialTicks) -> init.render(WEntity.wrap(entity), pass, partialTicks);
-    }
-
-    public static TileEntityRenderFunction tileEntityRender(WTileEntityRenderFunction init) {
-        return (entity, pass, partialTicks) -> init.render(WTileEntity.wrap(entity), pass, partialTicks);
-    }
 }
