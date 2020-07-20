@@ -1,5 +1,7 @@
 package com.anatawa12.dtsGenerator
 
+import org.objectweb.asm.tree.AnnotationNode
+
 
 class ClassesManager {
     val rootPackage = ThePackage(".", this)
@@ -123,6 +125,7 @@ data class TheMethods(val name: String) : TheElement(TheElementType.Method) {
     val singles = mutableMapOf<String, TheSingleMethod>()
 }
 data class TheSingleMethod(val name: String, val desc: String) {
+    val annotations = mutableMapOf<String, AnnotationNode>()
     val comments = mutableListOf<String>()
     var isDesc = true
     var signature = SigReader.current.methodDesc(desc, "$name$desc")

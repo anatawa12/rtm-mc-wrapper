@@ -6,6 +6,7 @@ package com.anatawa12.dtsGenerator
 import org.objectweb.asm.*
 import org.objectweb.asm.commons.ClassRemapper
 import org.objectweb.asm.commons.Remapper
+import org.objectweb.asm.tree.AnnotationNode
 import java.io.File
 import java.io.InputStream
 import java.lang.Exception
@@ -637,6 +638,16 @@ fun readClassFile(stream: InputStream, args: EndProcessArgs) {
                         it.signature = SigReader.current.methodDesc(signature, "${this.name}/$name$desc")
                     addComment(it.comments, args, name)
                     it.access = access
+                }
+                return object : MethodVisitor(Opcodes.ASM6) {
+                    override fun visitAnnotation(desc: String, visible: Boolean): AnnotationVisitor? {
+                        if (desc.startsWith("Lcom/anatawa12/dtsGenerator/")) {
+                            val an = AnnotationNode(desc)
+                            it.annotations[desc] = an
+                            return an
+                        }
+                        return super.visitAnnotation(desc, visible)
+                    }
                 }
             }
             return null
